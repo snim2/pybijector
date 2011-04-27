@@ -9,7 +9,7 @@ Current features:
  * Visible whitespace.
  * Code autocompletion (Ctrl+Space).
  * Increase / decrease font size.
- * Annotations for lint reports.
+ * Automatic annotations for lint reports.
 
 Copyright (C) Sarah Mount, 2011.
 
@@ -31,11 +31,9 @@ from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciStyle
 from PyQt4 import Qt
 
 from bijector_main import Ui_MainWindow
-
-from biject_linter import Lint
+from biject_linter import Lint, PyLintIterator, CSPLintIterator, LintMessage
 
 import os
-import re
 import syntax # Basic syntax highlighting where QScintilla would be overkill.
 
 __author__ = 'Sarah Mount <s.mount@wlv.ac.uk>'
@@ -46,15 +44,18 @@ __date__ = 'April 2011'
 # pylint: disable=W0511
 
 # TODO: Find previous, Replace.
-# TODO: PyLint for threaded code.
 # FIXME: get_editor() sometimes returns wrong editor.
 
 class MainWindow(Qt.QMainWindow, Ui_MainWindow):
     """Creates the Main Window of the application using the main 
     window design in the gui.bijector_main module.
     """
+    CSPLINT = '/usr/local/bin/csplint'
+    PYLINT = '/usr/bin/pylint'
     BREAK_MARKER_NUM = 1 # Marker for breakpoints.
     MAX_RECENT_FILES = 10
+    FOLDING_ON = 4
+    FOLDING_OFF = 0
     
     def __init__(self, parent=None):
         Qt.QMainWindow.__init__(self)
@@ -89,12 +90,12 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         
         # Styling for lint errors.
         self.info = QsciStyle(-1,
-                               'Hilite style for lint errors',
+                               'Hilite style for lint info',
                                Qt.QColor('#222222'),
                                Qt.QColor('#FFFFFF'),
                                self.lint_font)
         self.warning = QsciStyle(-1,
-                                  'Hilite style for lint errors',
+                                  'Hilite style for lint warnings',
                                   Qt.QColor('#222222'),
                                   Qt.QColor('#FFFF44'),
                                   self.lint_font)
@@ -108,8 +109,8 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         self.threadEdit.setAnnotationDisplay(2)
 
         # TEST ANNOTATIONS. TODO: REMOVE WHEN FIXED.
-        self.lint_error(1, 'foo bar flibble', editor=self.threadEdit)
-        self.lint_error(1, 'foo bar flibble', editor=self.cspEdit)
+        # self.lint_error(LintMessage(1, 'foo bar flibble', 'W'), editor=self.threadEdit)
+        # self.lint_error(LintMessage(1, 'foo bar flibble', 'W'), editor=self.cspEdit)
         
         # By default, hide the console tabs.
         self.action_Toggle_Console_Window.setChecked(False)
@@ -145,11 +146,16 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         self.cspEdit.setFocus()
 
         # Set up linting.
-        self.csplint = Lint('/usr/local/bin/csplint')
+        self.csplint = Lint(MainWindow.CSPLINT)
+        self.pylint = Lint(MainWindow.PYLINT)
         self.connect(self.csplint, 
-                     Qt.SIGNAL('results()'),
+                     Qt.SIGNAL('results(QString)'),
+                     self.lint_results)
+        self.connect(self.pylint, 
+                     Qt.SIGNAL('results(QString)'),
                      self.lint_results)
 
+        self.threadEdit.setFocus()
         return
 
     def get_editor(self):
@@ -294,8 +300,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         self.action_Close_File.setDisabled(False)
         return
     
-    def load_file(self, filename=None):
-
+    def load_file(self, editor=None, filename=None):
         if filename is None:
             fn = Qt.QFileDialog.getOpenFileName(self, 'Open File', self.userdir)
             if fn.isEmpty():
@@ -303,25 +308,24 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
                 return
             filename = str(fn)
 
+        if editor is None:
+            editor = self.get_editor()
+
         try:
-            f = open(filename,'r')
+            with open(filename, 'r') as f: 
+                editor.clear()
+                for line in f:
+                    editor.append(line)
         except Exception, e:
+            self.message('Could not open file %s.' % filename)
             return
 
-        self.get_editor().clear()
-        for line in f:
-            self.get_editor().append(line)
-        f.close()
-
-        self.get_editor().setModified(False)
-
+        editor.setModified(False)
         self.set_filename(filename)
-
         self.message('Loaded document %s' % (self.filename))
         self.action_Close_File.setDisabled(False)
-        self.run_lint()
+        self.run_lint(editor)
         return
-
 
     def clear_recent_files(self):
         """Clear list of recent files.
@@ -331,32 +335,34 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         self.update_recent_file_actions()
         return
     
-    def save_file(self):
+    def save_file(self, editor=None):
         if self.filename.isEmpty():
             self.save_as_file()
             return
 
+        if editor is None:
+            editor = self.get_editor()
+
         try:
             f = open(str(self.filename),'w+')
+            f.write(str(editor.text()))
+            f.close()
         except Exception, e:
             self.message('Could not write to %s' % self.filename)
             return
 
-        f.write(str(self.get_editor().text()))
-        f.close()
-
-        self.get_editor().setModified(False)
-        self.message('File %s saved' % (self.filename))
+        editor.setModified(False)
+        self.message('File %s saved' % self.filename)
         self.action_Close_File.setDisabled(False)
 
         # Auto-convert between concurrency models.
-        if self.get_editor() is self.threadEdit:
+        if editor is self.threadEdit:
             self.to_csp()
         else:
             self.to_threads()
 
         # Run appropriate lint.
-        self.run_lint()
+        self.run_lint(editor)
         return
 
     def save_as_file(self):
@@ -494,8 +500,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         line_number, ok = Qt.QInputDialog.getInt(self, self.app_name, 'Line number:',
                                                  # value, min, max, step
                                                  editor.getCursorPosition()[0]+1, 1, editor.lines(), 1)
-        # Only act if the user pressed 'ok'.
-        if ok:
+        if ok: # Only act if the user pressed 'ok'.
             editor.setCursorPosition(line_number - 1, 0)
         return
     
@@ -509,9 +514,9 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
 
     def toggle_folding_mode(self):
         if self.action_Folding_Mode_Source.isChecked():
-            self.get_editor().setFolding(4)
+            self.get_editor().setFolding(MainWindow.FOLDING_ON)
         else:
-            self.get_editor().setFolding(0)
+            self.get_editor().setFolding(MainWindow.FOLDING_OFF)
         return
 
     def clear_all_folds(self):
@@ -680,19 +685,25 @@ http://code.google.com/p/python-csp/wiki/Tutorial
         lineFrom, indexFrom, lineTo, indexTo = self.get_editor().getSelection()
         return lineFrom, indexFrom, lineTo, indexTo
 
-    def lint_error(self, linenum, msg, editor=None, severity='W'):
-        severities = {'I':self.info, 'W':self.warning, 'E':self.error}
-        hilite = severities[severity]
-#        print severity
-        if editor:
-            editor.annotate(int(linenum) - 1, msg, hilite)
+    def lint_error(self, msg, editor=None):
+        if msg is None:
+            return
+        severities = {'I':self.info, 'C':self.info, 
+                      'W':self.warning, 'R':self.warning,
+                      'E':self.error, 'F':self.error}
+        if msg.severity in severities.keys():
+            hilite = severities[msg.severity]
         else:
-            self.get_editor().annotate(int(linenum) - 1, msg, hilite)
+            hilite = severities['W']
+        if editor:
+            editor.annotate(int(msg.linenum) - 1, msg.message, hilite)
+        else:
+            self.get_editor().annotate(int(msg.linenum) - 1, msg.message, hilite)
         return
 
     def clear_all_lint_errors(self, editor=None):
         if editor:
-            self.editor.clearAnnotations(-1)
+            editor.clearAnnotations(-1)
         else:
             self.get_editor().clearAnnotations(-1)
         return
@@ -729,38 +740,26 @@ http://code.google.com/p/python-csp/wiki/Tutorial
         if action:
             self.load_file(action.data())
 
-    def run_lint(self):
-        self.csplint.start(self.filename, ['-p'])
+    def run_lint(self, editor):
+        if editor == self.cspEdit:
+            self.csplint.start(self.filename, ['-p'])
+        else:
+            self.pylint.start(self.filename, ['-f', 'text', '-r', 'n'])
         return
 
-    def lint_results(self):
-        # TODO: pyLint for threaded window.
-        results = str(self.csplint.results)
-        if not results:
-            return
+    def lint_results(self, emitter):
+        if str(emitter) == MainWindow.CSPLINT:
+            results = str(self.csplint.output)
+            for message in CSPLintIterator(results):
+                self.lint_error(message, editor=self.cspEdit)
+            self.message('Code annotated with csplint output.')
+        elif str(emitter) == MainWindow.PYLINT:
+            results = str(self.pylint.output)
+            for message in PyLintIterator(results):
+                self.lint_error(message, editor=self.threadEdit)
+            self.message('Code annotated with pylint output.')
 
-        re1='.*?\['	# Non-greedy match on filler
-        re2='(\S*\\.py)'
-        re3='.*?'	# Non-greedy match on filler
-        re4='(\d+)'	# Integer Number 1
-        re5='\].*?'	# Non-greedy match on filler
-        re6='(\w\d\d\d)'	# Alphanum num num num 
-        re7='.*?'	# Non-greedy match on filler
-        re8='(:)'	# Any Single Character 1
-        re9='(.*)$'
-
-        csp_pattern = re.compile(re1+re2+re3+re4+re5+re6+re7+re8+re9,re.IGNORECASE|re.DOTALL)
-        
-        for result in results.split('\n'):
-            result = result.strip()
-            if result:
-                re_res = re.match(csp_pattern, result)
-                try:
-                    severity = re_res.group(3)[0]
-                    self.lint_error(re_res.group(2), re_res.group(5), editor=self.cspEdit, severity=severity)
-                except Exception, e:
-                    print 'REGEXP FAILED:', result
-        self.message('Code annotated with csplint output.')
+        return
             
     def closeEvent(self, event):
         if self.threadEdit.isModified() or self.cspEdit.isModified():
@@ -775,3 +774,4 @@ http://code.google.com/p/python-csp/wiki/Tutorial
                 event.accept()
             elif reply == Qt.QMessageBox.Cancel:
                 event.ignore()
+        return
