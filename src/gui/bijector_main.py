@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui/bijector_main.ui'
 #
-# Created: Wed Apr 27 01:00:32 2011
+# Created: Wed Apr 27 01:46:21 2011
 #      by: PyQt4 UI code generator 4.8.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -204,6 +204,10 @@ class Ui_MainWindow(object):
         self.action_Replace_Search.setObjectName(_fromUtf8("action_Replace_Search"))
         self.action_Clear_Menu_Files = QtGui.QAction(MainWindow)
         self.action_Clear_Menu_Files.setObjectName(_fromUtf8("action_Clear_Menu_Files"))
+        self.action_Zoom_In_View = QtGui.QAction(MainWindow)
+        self.action_Zoom_In_View.setObjectName(_fromUtf8("action_Zoom_In_View"))
+        self.action_Zoom_Out_View = QtGui.QAction(MainWindow)
+        self.action_Zoom_Out_View.setObjectName(_fromUtf8("action_Zoom_Out_View"))
         self.menu_Recent_Files.addSeparator()
         self.menu_Recent_Files.addAction(self.action_Clear_Menu_Files)
         self.menuFile.addAction(self.action_New_File)
@@ -249,6 +253,9 @@ class Ui_MainWindow(object):
         self.menuWindow.addAction(self.action_Consoles_Windows)
         self.menuWindow.addSeparator()
         self.menuWindow.addAction(self.action_Toggle_Console_Window)
+        self.menuWindow.addSeparator()
+        self.menuWindow.addAction(self.action_Zoom_In_View)
+        self.menuWindow.addAction(self.action_Zoom_Out_View)
         self.menuSearch.addAction(self.action_Find_Search)
         self.menuSearch.addAction(self.action_Find_Next_Search)
         self.menuSearch.addAction(self.action_Find_Previous_Search)
@@ -258,11 +265,11 @@ class Ui_MainWindow(object):
         self.menuSearch.addAction(self.action_Goto_Line_Search)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menu_Edit.menuAction())
+        self.menubar.addAction(self.menuWindow.menuAction())
         self.menubar.addAction(self.menuSearch.menuAction())
         self.menubar.addAction(self.menuSource.menuAction())
         self.menubar.addAction(self.menu_Run.menuAction())
         self.menubar.addAction(self.menuBijector.menuAction())
-        self.menubar.addAction(self.menuWindow.menuAction())
         self.menubar.addAction(self.menu_Help.menuAction())
         self.toolBar.addAction(self.action_Open_File)
         self.toolBar.addAction(self.action_New_File)
@@ -315,6 +322,8 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.action_Replace_Search, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.replace)
         QtCore.QObject.connect(self.action_Goto_Line_Search, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.goto_line)
         QtCore.QObject.connect(self.action_Clear_Menu_Files, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.clear_recent_files)
+        QtCore.QObject.connect(self.action_Zoom_In_View, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.zoom_in)
+        QtCore.QObject.connect(self.action_Zoom_Out_View, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.zoom_out)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -329,7 +338,7 @@ class Ui_MainWindow(object):
         self.menuBijector.setTitle(QtGui.QApplication.translate("MainWindow", "Bijector", None, QtGui.QApplication.UnicodeUTF8))
         self.menuSource.setTitle(QtGui.QApplication.translate("MainWindow", "&Source", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Run.setTitle(QtGui.QApplication.translate("MainWindow", "&Run", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuWindow.setTitle(QtGui.QApplication.translate("MainWindow", "&Window", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuWindow.setTitle(QtGui.QApplication.translate("MainWindow", "View", None, QtGui.QApplication.UnicodeUTF8))
         self.menuSearch.setTitle(QtGui.QApplication.translate("MainWindow", "Search", None, QtGui.QApplication.UnicodeUTF8))
         self.toolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "toolBar", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Open_File.setText(QtGui.QApplication.translate("MainWindow", "&Open File", None, QtGui.QApplication.UnicodeUTF8))
@@ -360,9 +369,7 @@ class Ui_MainWindow(object):
         self.action_Select_All_Edit.setText(QtGui.QApplication.translate("MainWindow", "Select &All", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Select_All_Edit.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+A", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Convert_to_CSP_Bijector.setText(QtGui.QApplication.translate("MainWindow", "Convert to &CSP", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_Convert_to_CSP_Bijector.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Up", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Convert_to_Threads_Bijector.setText(QtGui.QApplication.translate("MainWindow", "Convert to &Threads", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_Convert_to_Threads_Bijector.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Down", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Folding_Mode_Source.setText(QtGui.QApplication.translate("MainWindow", "Folding Mode", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Folding_Mode_Source.setToolTip(QtGui.QApplication.translate("MainWindow", "Allow indented blocks to be folded and unfolded", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Fold_All_Source.setText(QtGui.QApplication.translate("MainWindow", "Fold All", None, QtGui.QApplication.UnicodeUTF8))
@@ -407,5 +414,9 @@ class Ui_MainWindow(object):
         self.action_Replace_Search.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Clear_Menu_Files.setText(QtGui.QApplication.translate("MainWindow", "Clear Menu", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Clear_Menu_Files.setToolTip(QtGui.QApplication.translate("MainWindow", "Clear list of recent files", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Zoom_In_View.setText(QtGui.QApplication.translate("MainWindow", "Zoom &In", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Zoom_In_View.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl++", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Zoom_Out_View.setText(QtGui.QApplication.translate("MainWindow", "Zoom &Out", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Zoom_Out_View.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+-", None, QtGui.QApplication.UnicodeUTF8))
 
 from PyQt4 import Qsci

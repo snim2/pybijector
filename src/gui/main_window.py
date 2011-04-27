@@ -577,6 +577,16 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         self.pythonConsole.setFocus()
         return
 
+    def zoom_in(self):
+        self.cspEdit.zoomIn()
+        self.threadEdit.zoomIn()
+        return
+
+    def zoom_out(self):
+        self.cspEdit.zoomOut()
+        self.threadEdit.zoomOut()
+        return
+
     #
     # Help menu actions.
     #

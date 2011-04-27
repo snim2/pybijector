@@ -214,13 +214,16 @@
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
-     <string>&amp;Window</string>
+     <string>View</string>
     </property>
     <addaction name="action_Threaded_Code_Editor"/>
     <addaction name="action_Python_CSP_Code_Editor"/>
     <addaction name="action_Consoles_Windows"/>
     <addaction name="separator"/>
     <addaction name="action_Toggle_Console_Window"/>
+    <addaction name="separator"/>
+    <addaction name="action_Zoom_In_View"/>
+    <addaction name="action_Zoom_Out_View"/>
    </widget>
    <widget class="QMenu" name="menuSearch">
     <property name="title">
@@ -236,11 +239,11 @@
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menu_Edit"/>
+   <addaction name="menuWindow"/>
    <addaction name="menuSearch"/>
    <addaction name="menuSource"/>
    <addaction name="menu_Run"/>
    <addaction name="menuBijector"/>
-   <addaction name="menuWindow"/>
    <addaction name="menu_Help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -379,16 +382,10 @@
    <property name="text">
     <string>Convert to &amp;CSP</string>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+Up</string>
-   </property>
   </action>
   <action name="action_Convert_to_Threads_Bijector">
    <property name="text">
     <string>Convert to &amp;Threads</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Down</string>
    </property>
   </action>
   <action name="action_Folding_Mode_Source">
@@ -577,6 +574,22 @@
    </property>
    <property name="toolTip">
     <string>Clear list of recent files</string>
+   </property>
+  </action>
+  <action name="action_Zoom_In_View">
+   <property name="text">
+    <string>Zoom &amp;In</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl++</string>
+   </property>
+  </action>
+  <action name="action_Zoom_Out_View">
+   <property name="text">
+    <string>Zoom &amp;Out</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
    </property>
   </action>
  </widget>
@@ -1213,6 +1226,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>action_Zoom_In_View</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>zoom_in()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>462</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_Zoom_Out_View</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>zoom_out()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>462</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>load_file()</slot>
@@ -1254,5 +1299,7 @@
   <slot>goto_line()</slot>
   <slot>recent_files()</slot>
   <slot>clear_recent_files()</slot>
+  <slot>zoom_in()</slot>
+  <slot>zoom_out()</slot>
  </slots>
 </ui>
