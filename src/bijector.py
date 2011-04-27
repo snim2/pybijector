@@ -17,6 +17,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+import sip
+sip.setapi('QVariant', 2)
+
 import PyQt4.QtGui as QtGui
 
 import sys

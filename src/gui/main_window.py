@@ -43,7 +43,6 @@ __date__ = 'April 2011'
 # pylint: disable=W0511
 
 # TODO: Find previous, Replace.
-# TODO: Recent file list (use QSettings).
 # TODO: Check that all files have been saved before closing the app.
 
 class MainWindow(Qt.QMainWindow, Ui_MainWindow):
@@ -51,6 +50,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
     window design in the gui.bijector_main module.
     """
     BREAK_MARKER_NUM = 1 # Marker for breakpoints.
+    MAX_RECENT_FILES = 10
     
     def __init__(self, parent=None):
         Qt.QMainWindow.__init__(self)
@@ -65,8 +65,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
 
         self.userdir = os.path.expanduser('~')
         self.filename = Qt.QString('')
-        # Used in search / replace
-        self.searchString = None
+        self.searchString = None # Used in search / replace
 
         # Default fonts and styles.
         self.font = Qt.QFont()
@@ -101,7 +100,15 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         self.highlight_thread = syntax.PythonHighlighter(self.threadConsole.document())
         self.highlight_csp = syntax.PythonHighlighter(self.cspConsole.document())
 
-        # TODO Populate recent file list.
+        # Populate recent file list.
+        self.recent_file_acts = []
+        for i in range(MainWindow.MAX_RECENT_FILES):
+            self.recent_file_acts.append(Qt.QAction(self,
+                                                    visible=False,
+                                                    triggered=self.open_recent_file))
+        for i in xrange(MainWindow.MAX_RECENT_FILES):
+            self.menu_Recent_Files.addAction(self.recent_file_acts[i])
+        self.update_recent_file_actions()
         
         # Shortcuts without menu items
         self.connect(Qt.QShortcut(Qt.QKeySequence("Ctrl+Space"), self), 
@@ -145,6 +152,24 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         else:
             self.filename = name
         self.setWindowTitle(str(name))
+
+        # TODO: deal with recent file list.
+        settings = Qt.QSettings(self.app_name, self.app_name)
+        files = settings.value('recentFileList')
+        if files is None:
+            settings.setValue('recentFileList', [])
+            files = []
+        else:
+            try:
+                files.remove(name)
+            except Exception, e:
+                pass
+
+        files.insert(0, name)
+        del files[MainWindow.MAX_RECENT_FILES:]
+
+        settings.setValue('recentFileList', files)
+        self.update_recent_file_actions()
         return
 
     def setup_icons(self):
@@ -237,16 +262,17 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         self.action_Close_File.setDisabled(False)
         return
     
-    def load_file(self):
-        fn = Qt.QFileDialog.getOpenFileName(self, 'Open File', self.userdir)
-        if fn.isEmpty():
-            self.message('Loading aborted')
-            return
+    def load_file(self, filename=None):
 
-        fileName = str(fn)
+        if filename is None:
+            fn = Qt.QFileDialog.getOpenFileName(self, 'Open File', self.userdir)
+            if fn.isEmpty():
+                self.message('Loading aborted')
+                return
+            filename = str(fn)
 
         try:
-            f = open(fileName,'r')
+            f = open(filename,'r')
         except Exception, e:
             return
 
@@ -257,7 +283,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
 
         self.get_editor().setModified(False)
 
-        self.set_filename(fileName)
+        self.set_filename(filename)
 
         self.message('Loaded document %s' % (self.filename))
         self.action_Close_File.setDisabled(False)
@@ -267,8 +293,9 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
     def clear_recent_files(self):
         """Clear list of recent files.
         """
-        print 'Clear recent file list.'
-        # WRITEME
+        settings = Qt.QSettings(self.app_name, self.app_name)
+        settings.setValue('recentFileList', [])
+        self.update_recent_file_actions()
         return
     
     def save_file(self):
@@ -629,3 +656,30 @@ http://code.google.com/p/python-csp/wiki/Tutorial
         self.get_editor().clearAnnotations(linenum - 1)
         return
 
+    def update_recent_file_actions(self):
+        settings = Qt.QSettings(self.app_name, self.app_name)
+        files = settings.value('recentFileList')
+
+        if files is None:
+            return
+        
+        numRecentFiles = min(len(files), MainWindow.MAX_RECENT_FILES)
+
+        for i in range(numRecentFiles):
+            text = "&%d %s" % (i + 1, self.strippedName(files[i]))
+            self.recent_file_acts[i].setText(text)
+            self.recent_file_acts[i].setData(files[i])
+            self.recent_file_acts[i].setVisible(True)
+
+        for j in range(numRecentFiles, MainWindow.MAX_RECENT_FILES):
+            self.recent_file_acts[j].setVisible(False)
+
+        return
+
+    def strippedName(self, fullFileName):
+        return Qt.QFileInfo(fullFileName).fileName()
+
+    def open_recent_file(self):
+        action = self.sender()
+        if action:
+            self.load_file(action.data())
