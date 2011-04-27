@@ -8,6 +8,8 @@ Current features:
  * Word wrap.
  * Visible whitespace.
  * Code autocompletion (Ctrl+Space).
+ * Increase / decrease font size.
+ * Annotations for lint reports.
 
 Copyright (C) Sarah Mount, 2011.
 
@@ -99,9 +101,6 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         self.highlight_thread = syntax.PythonHighlighter(self.threadConsole.document())
         self.highlight_csp = syntax.PythonHighlighter(self.cspConsole.document())
 
-        # TEST TODO
-        self.lint_error(1, 'flibble bar foo baz')
-        
         # TODO Populate recent file list.
         
         # Shortcuts without menu items
