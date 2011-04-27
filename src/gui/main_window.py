@@ -542,12 +542,6 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
             self.pythonConsole.setFocus()
         else:
             self.consoleTabs.hide()
-
-        # if self.consoleTabs.isVisible():
-        #     self.dockWidget_consoles.hide()
-        # else:
-        #     self.dockWidget_consoles.show()
-        #     self.pythonConsole.setFocus()
         return
     
     def focus_threads(self):
