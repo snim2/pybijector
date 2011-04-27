@@ -25,7 +25,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from PyQt4.Qsci import QsciScintilla, QsciLexerPython
+from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciStyle
 from PyQt4 import Qt
 
 from bijector_main import Ui_MainWindow
@@ -54,8 +54,6 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         Qt.QMainWindow.__init__(self)
         self.setupUi(self)
         self.setup_icons()
-        self.setup_editor(self.threadEdit)
-        self.setup_editor(self.cspEdit)
 
         self.app_name = 'PyBijector'
         self.setWindowTitle(self.app_name)
@@ -67,6 +65,23 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         self.filename = Qt.QString('')
         # Used in search / replace
         self.searchString = None
+
+        # Default fonts and styles.
+        self.font = Qt.QFont()
+        self.font.setFamily('Courier')
+        self.font.setFixedPitch(True)
+        self.font.setPointSize(11)
+
+        # Setup styling for editor panes.
+        self.setup_editor(self.threadEdit)
+        self.setup_editor(self.cspEdit)
+        
+        # Styling for lint errors.
+        self.hilite = QsciStyle(-1, 'Hilite style for lint errors',
+                                 Qt.QColor('#222222'), Qt.QColor('#FFFF44'),
+                                 self.font)
+        self.threadEdit.setAnnotationDisplay(2)
+        self.cspEdit.setAnnotationDisplay(2)
         
         # By default, hide the console tabs.
         self.action_Toggle_Console_Window.setChecked(False)
@@ -84,6 +99,9 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         self.highlight_thread = syntax.PythonHighlighter(self.threadConsole.document())
         self.highlight_csp = syntax.PythonHighlighter(self.cspConsole.document())
 
+        # TEST TODO
+        self.lint_error(1, 'flibble bar foo baz')
+        
         # TODO Populate recent file list.
         
         # Shortcuts without menu items
@@ -190,25 +208,20 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
                                         MainWindow.BREAK_MARKER_NUM)
         editor.setMarkerForegroundColor(Qt.QColor("#000000"),
                                         MainWindow.BREAK_MARKER_NUM)
-        # Set default font.
-        font = Qt.QFont()
-        font.setFamily('Courier')
-        font.setFixedPitch(True)
-        font.setPointSize(11)
-        editor.setFont(font)
-        editor.setMarginsFont(font)
+        editor.setFont(self.font)
+        editor.setMarginsFont(self.font)
         # Mark the 79th column.
         editor.setEdgeColumn(79)
         editor.setEdgeMode(1)        
         # Margin 0 is used for line numbers.
-        fontmetrics = Qt.QFontMetrics(font)
-        editor.setMarginsFont(font)
+        fontmetrics = Qt.QFontMetrics(self.font)
+        editor.setMarginsFont(self.font)
         editor.setMarginWidth(0, fontmetrics.width("00000") + 6)
         editor.setMarginLineNumbers(0, True)
         editor.setMarginsBackgroundColor(Qt.QColor("#cccccc"))
         # Set Python lexer and its fonts.
         lexer = QsciLexerPython()
-        lexer.setDefaultFont(font)
+        lexer.setDefaultFont(self.font)
         editor.setLexer(lexer)
         editor.SendScintilla(QsciScintilla.SCI_STYLESETFONT, 1, 'Courier')
         return
@@ -594,3 +607,16 @@ http://code.google.com/p/python-csp/wiki/Tutorial
     def get_current_selection(self):
         lineFrom, indexFrom, lineTo, indexTo = self.get_editor().getSelection()
         return lineFrom, indexFrom, lineTo, indexTo
+
+    def lint_error(self, linenum, msg):
+        self.get_editor().annotate(linenum - 1, msg, self.hilite)
+        return
+
+    def clear_all_lint_errors(self):
+        self.get_editor().clearAnnotations(-1)
+        return
+
+    def clear_lint_error(self, linenum):
+        self.get_editor().clearAnnotations(linenum - 1)
+        return
+
