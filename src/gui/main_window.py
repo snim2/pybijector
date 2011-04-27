@@ -32,7 +32,10 @@ from PyQt4 import Qt
 
 from bijector_main import Ui_MainWindow
 
+from biject_linter import Lint
+
 import os
+import re
 import syntax # Basic syntax highlighting where QScintilla would be overkill.
 
 __author__ = 'Sarah Mount <s.mount@wlv.ac.uk>'
@@ -44,6 +47,7 @@ __date__ = 'April 2011'
 
 # TODO: Find previous, Replace.
 # TODO: Check that all files have been saved before closing the app.
+# TODO: PyLint for threaded code.
 
 class MainWindow(Qt.QMainWindow, Ui_MainWindow):
     """Creates the Main Window of the application using the main 
@@ -73,16 +77,37 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         self.font.setFixedPitch(True)
         self.font.setPointSize(11)
 
+        self.lint_font = Qt.QFont()
+        self.lint_font.setFamily('Courier')
+        self.lint_font.setFixedPitch(True)
+        self.lint_font.setItalic(True)
+        self.lint_font.setPointSize(9)
+        
         # Setup styling for editor panes.
         self.setup_editor(self.threadEdit)
         self.setup_editor(self.cspEdit)
         
         # Styling for lint errors.
-        self.hilite = QsciStyle(-1, 'Hilite style for lint errors',
-                                 Qt.QColor('#222222'), Qt.QColor('#FFFF44'),
-                                 self.font)
-        self.threadEdit.setAnnotationDisplay(2)
+        self.info = QsciStyle(-1,
+                               'Hilite style for lint errors',
+                               Qt.QColor('#222222'),
+                               Qt.QColor('#FFFFFF'),
+                               self.lint_font)
+        self.warning = QsciStyle(-1,
+                                  'Hilite style for lint errors',
+                                  Qt.QColor('#222222'),
+                                  Qt.QColor('#FFFF44'),
+                                  self.lint_font)
+        self.error = QsciStyle(-1,
+                                'Hilite style for lint errors',
+                                Qt.QColor('#222222'),
+                                Qt.QColor('#EE0000'),
+                                self.lint_font)
         self.cspEdit.setAnnotationDisplay(2)
+        self.threadEdit.setAnnotationDisplay(2)
+
+        self.lint_error(1, 'foo bar flibble', editor=self.threadEdit)
+        self.lint_error(1, 'foo bar flibble', editor=self.cspEdit)
         
         # By default, hide the console tabs.
         self.action_Toggle_Console_Window.setChecked(False)
@@ -102,11 +127,10 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
 
         # Populate recent file list.
         self.recent_file_acts = []
-        for i in range(MainWindow.MAX_RECENT_FILES):
+        for i in xrange(MainWindow.MAX_RECENT_FILES):
             self.recent_file_acts.append(Qt.QAction(self,
                                                     visible=False,
                                                     triggered=self.open_recent_file))
-        for i in xrange(MainWindow.MAX_RECENT_FILES):
             self.menu_Recent_Files.addAction(self.recent_file_acts[i])
         self.update_recent_file_actions()
         
@@ -116,7 +140,16 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
                      self.autocomplete)
 
         # Start with the focus on the left hand editor.
-        self.threadEdit.setFocus()
+        self.cspEdit.setFocus()
+
+        # Set up linting.
+        self.csplint = Lint('/usr/local/bin/csplint')
+        self.connect(self.csplint, 
+                     Qt.SIGNAL('results()'),
+                     self.lint_results)
+
+        # FIXME
+        self.threadEdit, self.cspEdit = self.cspEdit, self.threadEdit
         return
 
     def get_editor(self):
@@ -287,6 +320,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
 
         self.message('Loaded document %s' % (self.filename))
         self.action_Close_File.setDisabled(False)
+        self.run_lint()
         return
 
 
@@ -321,6 +355,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
             self.to_csp()
         else:
             self.to_threads()
+        self.run_lint()
         return
 
     def save_as_file(self):
@@ -644,12 +679,21 @@ http://code.google.com/p/python-csp/wiki/Tutorial
         lineFrom, indexFrom, lineTo, indexTo = self.get_editor().getSelection()
         return lineFrom, indexFrom, lineTo, indexTo
 
-    def lint_error(self, linenum, msg):
-        self.get_editor().annotate(linenum - 1, msg, self.hilite)
+    def lint_error(self, linenum, msg, editor=None, severity='W'):
+        severities = {'I':self.info, 'W':self.warning, 'E':self.error}
+        hilite = severities[severity]
+        print severity
+        if editor:
+            editor.annotate(int(linenum) - 1, msg, hilite)
+        else:
+            self.get_editor().annotate(int(linenum) - 1, msg, hilite)
         return
 
-    def clear_all_lint_errors(self):
-        self.get_editor().clearAnnotations(-1)
+    def clear_all_lint_errors(self, editor=None):
+        if editor:
+            self.editor.clearAnnotations(-1)
+        else:
+            self.get_editor().clearAnnotations(-1)
         return
 
     def clear_lint_error(self, linenum):
@@ -683,3 +727,36 @@ http://code.google.com/p/python-csp/wiki/Tutorial
         action = self.sender()
         if action:
             self.load_file(action.data())
+
+    def run_lint(self):
+        self.csplint.start(self.filename, ['-p'])
+        return
+
+    def lint_results(self):
+        # TODO: pyLint for threaded window.
+        results = str(self.csplint.results)
+        if not results:
+            return
+
+        re1='.*?\['	# Non-greedy match on filler
+        re2='(\S*\\.py)'
+        re3='.*?'	# Non-greedy match on filler
+        re4='(\d+)'	# Integer Number 1
+        re5='\].*?'	# Non-greedy match on filler
+        re6='(\w\d\d\d)'	# Alphanum num num num 
+        re7='.*?'	# Non-greedy match on filler
+        re8='(:)'	# Any Single Character 1
+        re9='(.*)$'
+
+        csp_pattern = re.compile(re1+re2+re3+re4+re5+re6+re7+re8+re9,re.IGNORECASE|re.DOTALL)
+        
+        for result in results.split('\n'):
+            result = result.strip()
+            if result:
+                re_res = re.match(csp_pattern, result)
+                try:
+                    severity = re_res.group(3)[0]
+                    self.lint_error(re_res.group(2), re_res.group(5), editor=self.cspEdit, severity=severity)
+                except Exception, e:
+                    print 'REGEXP FAILED:', result
+            
