@@ -46,8 +46,8 @@ __date__ = 'April 2011'
 # pylint: disable=W0511
 
 # TODO: Find previous, Replace.
-# TODO: Check that all files have been saved before closing the app.
 # TODO: PyLint for threaded code.
+# FIXME: get_editor() sometimes returns wrong editor.
 
 class MainWindow(Qt.QMainWindow, Ui_MainWindow):
     """Creates the Main Window of the application using the main 
@@ -103,9 +103,11 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
                                 Qt.QColor('#222222'),
                                 Qt.QColor('#EE0000'),
                                 self.lint_font)
+
         self.cspEdit.setAnnotationDisplay(2)
         self.threadEdit.setAnnotationDisplay(2)
 
+        # TEST ANNOTATIONS. TODO: REMOVE WHEN FIXED.
         self.lint_error(1, 'foo bar flibble', editor=self.threadEdit)
         self.lint_error(1, 'foo bar flibble', editor=self.cspEdit)
         
@@ -148,8 +150,6 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
                      Qt.SIGNAL('results()'),
                      self.lint_results)
 
-        # FIXME
-        self.threadEdit, self.cspEdit = self.cspEdit, self.threadEdit
         return
 
     def get_editor(self):
@@ -186,7 +186,6 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
             self.filename = name
         self.setWindowTitle(str(name))
 
-        # TODO: deal with recent file list.
         settings = Qt.QSettings(self.app_name, self.app_name)
         files = settings.value('recentFileList')
         if files is None:
@@ -355,6 +354,8 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
             self.to_csp()
         else:
             self.to_threads()
+
+        # Run appropriate lint.
         self.run_lint()
         return
 
@@ -682,7 +683,7 @@ http://code.google.com/p/python-csp/wiki/Tutorial
     def lint_error(self, linenum, msg, editor=None, severity='W'):
         severities = {'I':self.info, 'W':self.warning, 'E':self.error}
         hilite = severities[severity]
-        print severity
+#        print severity
         if editor:
             editor.annotate(int(linenum) - 1, msg, hilite)
         else:
@@ -759,4 +760,18 @@ http://code.google.com/p/python-csp/wiki/Tutorial
                     self.lint_error(re_res.group(2), re_res.group(5), editor=self.cspEdit, severity=severity)
                 except Exception, e:
                     print 'REGEXP FAILED:', result
+        self.message('Code annotated with csplint output.')
             
+    def closeEvent(self, event):
+        if self.threadEdit.isModified() or self.cspEdit.isModified():
+            quit_msg = 'Would you like to save your changes before leaving ' + self.app_name + '?'
+            reply = Qt.QMessageBox.question(self, self.app_name, quit_msg,
+                                            Qt.QMessageBox.Save, Qt.QMessageBox.Discard, Qt.QMessageBox.Cancel)
+
+            if reply == Qt.QMessageBox.Save:
+                self.save_file()
+                event.accept()
+            elif reply == Qt.QMessageBox.Discard:
+                event.accept()
+            elif reply == Qt.QMessageBox.Cancel:
+                event.ignore()
