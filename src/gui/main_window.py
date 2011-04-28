@@ -191,21 +191,16 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
             self.filename = Qt.QString(name)
         else:
             self.filename = name
-        self.setWindowTitle(str(name))
+        self.setWindowTitle(name)
 
         settings = Qt.QSettings(self.app_name, self.app_name)
         files = settings.value('recentFileList')
         if files is None:
-            settings.setValue('recentFileList', [])
-            files = []
+            files = [name]
         else:
-            try:
-                files.remove(name)
-            except Exception, e:
-                pass
-
-        files.insert(0, name)
-        del files[MainWindow.MAX_RECENT_FILES:]
+            files.insert(0, name)
+            files = list(set(files)) # Remove duplicates.
+            del files[MainWindow.MAX_RECENT_FILES:]
 
         settings.setValue('recentFileList', files)
         self.update_recent_file_actions()
@@ -706,13 +701,13 @@ http://code.google.com/p/python-csp/wiki/Tutorial
     def update_recent_file_actions(self):
         settings = Qt.QSettings(self.app_name, self.app_name)
         files = settings.value('recentFileList')
-
+        
         if files is None:
             return
         
         numRecentFiles = min(len(files), MainWindow.MAX_RECENT_FILES)
-
-        for i in range(numRecentFiles):
+        
+        for i in xrange(numRecentFiles):
             text = "&%d %s" % (i + 1, self.strippedName(files[i]))
             self.recent_file_acts[i].setText(text)
             self.recent_file_acts[i].setData(files[i])
