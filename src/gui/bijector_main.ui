@@ -68,7 +68,7 @@
         <enum>QTabWidget::North</enum>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>2</number>
        </property>
        <property name="elideMode">
         <enum>Qt::ElideNone</enum>
@@ -92,14 +92,14 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_6">
          <item>
-          <widget class="QTextBrowser" name="cspConsole"/>
-         </item>
-         <item>
           <widget class="QDialogButtonBox" name="buttonBox">
            <property name="standardButtons">
             <set>QDialogButtonBox::Abort|QDialogButtonBox::Reset</set>
            </property>
           </widget>
+         </item>
+         <item>
+          <widget class="QTextBrowser" name="cspConsole"/>
          </item>
         </layout>
        </widget>

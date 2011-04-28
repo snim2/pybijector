@@ -31,6 +31,7 @@ from PyQt4 import Qt
 
 from bijector_main import Ui_MainWindow
 from biject_linter import Lint, PyLintIterator, CSPLintIterator
+from interpreter import Interpreter
 from styling import StyleMixin
 
 import os
@@ -43,18 +44,23 @@ __date__ = 'April 2011'
 # pylint: disable=W0613
 # pylint: disable=W0511
 
-# TODO: Find previous, Replace.
+# TODO: Replace.
+# TODO: Python interpreter for running code.
+# TODO: Interactive Python interpreter.
+# TODO: Interactive Python debugger.
+# TODO: Interactive python-csp debugger.
 # FIXME: get_editor() sometimes returns wrong editor.
 
 class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     """Creates the Main Window of the application using the main 
     window design in the gui.bijector_main module.
     """
+    MAX_RECENT_FILES = 10
     CSPLINT = '/usr/local/bin/csplint'
     PYLINT = '/usr/bin/pylint'
-    MAX_RECENT_FILES = 10
-    FOLDING_ON = 4
-    FOLDING_OFF = 0
+    PYTHON = '/usr/bin/python'
+    PDB = '/usr/bin/pdb'
+    CSPDB = '/usr/local/bin/cspdb'
     
     # Editor slots contains names of SLOTs from the QScintilla editor
     # widgets. We take SIGNALs from the MainWindow object and pass
@@ -85,17 +91,10 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         
         self.cspEdit.setAnnotationDisplay(2)
         self.threadEdit.setAnnotationDisplay(2)
-
-        # TEST ANNOTATIONS. TODO: REMOVE WHEN FIXED.
-#        from biject_linter import LintMessage
-#        self.lint_error(LintMessage(1, 'foo bar flibble', 'W'), editor=self.threadEdit)
-#        self.lint_error(LintMessage(1, 'foo bar flibble', 'W'), editor=self.cspEdit)
         
-        # By default, hide the console tabs.
+        # Set checkable actions.
         self.action_Toggle_Console_Window.setChecked(False)
         self.consoleTabs.hide()
-
-        # Set checkable actions.
         self.action_Folding_Mode_Source.setChecked(True)
         self.toggle_folding_mode()
         self.action_Whitespace_Visible_Source.setChecked(True)
@@ -129,6 +128,17 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
                      Qt.SIGNAL('results(QString)'),
                      self.lint_results)
 
+        # Set up interpreters and debuggers.
+        self.csp_interp = Interpreter(MainWindow.PYTHON)
+        self.connect(self.csp_interp,
+                     Qt.SIGNAL('results(QString)'),
+                     self.parse_csp_run)
+        self.thread_interp = Interpreter(MainWindow.PYTHON)
+        self.connect(self.thread_interp,
+                     Qt.SIGNAL('results(QString)'),
+                     self.parse_thread_run)
+
+        # Start with focus on the left hand pane.
         self.threadEdit.setFocus()
         return
 
@@ -356,8 +366,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     def find_next(self):
         if self.searchString is None:
             self.find()
-            return
-        if not self.get_editor().findNext():
+        elif not self.get_editor().findNext():
             Qt.QMessageBox.information(self, self.app_name,
                                        ('No more occurances of ' +
                                         self.searchString +
@@ -386,9 +395,9 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
 
     def toggle_folding_mode(self):
         if self.action_Folding_Mode_Source.isChecked():
-            self.get_editor().setFolding(MainWindow.FOLDING_ON)
+            self.get_editor().setFolding(StyleMixin.FOLDING_ON)
         else:
-            self.get_editor().setFolding(MainWindow.FOLDING_OFF)
+            self.get_editor().setFolding(StyleMixin.FOLDING_OFF)
         return
 
     def clear_all_folds(self):
@@ -437,10 +446,22 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
 
     def run_csp(self):
         # WRITEME
+        self.cspConsole.clear()
+        if not self.action_Toggle_Console_Window.isChecked():
+            self.action_Toggle_Console_Window.setChecked(True)
+            self.toggle_console()
+        self.consoleTabs.setCurrentWidget(self.cspConsole)
+        self.csp_interp.start(self.filename, [])
         return
 
     def run_threads(self):
         # WRITEME
+        self.threadConsole.clear()
+        if not self.action_Toggle_Console_Window.isChecked():
+            self.action_Toggle_Console_Window.setChecked(True)
+            self.toggle_console()
+        self.consoleTabs.setCurrentWidget(self.threadConsole)
+        self.thread_interp.start(self.filename, [])
         return
 
     def get_breakpoints(self, editor=None):
@@ -491,6 +512,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     def toggle_console(self):
         if self.action_Toggle_Console_Window.isChecked():
             self.consoleTabs.show()
+            self.consoleTabs.setCurrentWidget(self.pythonConsole)
             self.pythonConsole.setFocus()
         else:
             self.consoleTabs.hide()
@@ -562,10 +584,9 @@ http://code.google.com/p/python-csp/wiki/Tutorial
         return
 
     def clear_all_lint_errors(self, editor=None):
-        if editor:
-            editor.clearAnnotations(-1)
-        else:
-            self.get_editor().clearAnnotations(-1)
+        if editor is None:
+            editor = self.get_editor()
+        editor.clearAnnotations(-1)
         return
 
     def clear_lint_error(self, linenum):
@@ -626,7 +647,23 @@ http://code.google.com/p/python-csp/wiki/Tutorial
             self.message('Code annotated with pylint output.')
 
         return
-            
+
+    def parse_csp_run(self, word):
+        output = str(self.csp_interp.output)
+        if not output:
+            self.csp_interp.readErrors()
+            output = str(self.csp_interp.errors)
+        self.cspConsole.append()
+        return
+
+    def parse_thread_run(self, word):
+        output = str(self.thread_interp.output)
+        if not output:
+            self.thread_interp.readErrors()
+            output = str(self.thread_interp.errors)
+        self.threadConsole.append(output)
+        return
+    
     def closeEvent(self, event):
         if self.threadEdit.isModified() or self.cspEdit.isModified():
             quit_msg = 'Would you like to save your changes before leaving ' + self.app_name + '?'

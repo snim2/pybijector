@@ -22,13 +22,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciStyle
 from PyQt4 import Qt
 
-
 __author__ = 'Sarah Mount <s.mount@wlv.ac.uk>'
 __date__ = 'April 2011'
 
+# pylint: disable=W0201
 
 class StyleMixin(object):
     BREAK_MARKER_NUM = 1 # Marker for breakpoints.
+    FOLDING_ON = 4
+    FOLDING_OFF = 0
 
     def setup_styling(self):
         # Default fonts and styles.

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui/bijector_main.ui'
 #
-# Created: Thu Apr 28 19:35:14 2011
+# Created: Thu Apr 28 21:28:35 2011
 #      by: PyQt4 UI code generator 4.8.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -71,13 +71,13 @@ class Ui_MainWindow(object):
         self.tab_5.setObjectName(_fromUtf8("tab_5"))
         self.verticalLayout_6 = QtGui.QVBoxLayout(self.tab_5)
         self.verticalLayout_6.setObjectName(_fromUtf8("verticalLayout_6"))
-        self.cspConsole = QtGui.QTextBrowser(self.tab_5)
-        self.cspConsole.setObjectName(_fromUtf8("cspConsole"))
-        self.verticalLayout_6.addWidget(self.cspConsole)
         self.buttonBox = QtGui.QDialogButtonBox(self.tab_5)
         self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Abort|QtGui.QDialogButtonBox.Reset)
         self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
         self.verticalLayout_6.addWidget(self.buttonBox)
+        self.cspConsole = QtGui.QTextBrowser(self.tab_5)
+        self.cspConsole.setObjectName(_fromUtf8("cspConsole"))
+        self.verticalLayout_6.addWidget(self.cspConsole)
         self.consoleTabs.addTab(self.tab_5, _fromUtf8(""))
         self.tab_4 = QtGui.QWidget()
         self.tab_4.setObjectName(_fromUtf8("tab_4"))
@@ -279,7 +279,7 @@ class Ui_MainWindow(object):
         self.toolBar.addAction(self.action_Run_CSP_Code_Run)
 
         self.retranslateUi(MainWindow)
-        self.consoleTabs.setCurrentIndex(1)
+        self.consoleTabs.setCurrentIndex(2)
         QtCore.QObject.connect(self.action_Open_File, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.load_file)
         QtCore.QObject.connect(self.action_New_File, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.new_file)
         QtCore.QObject.connect(self.action_About_Help, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.about)
