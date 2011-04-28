@@ -55,6 +55,10 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     MAX_RECENT_FILES = 10
     FOLDING_ON = 4
     FOLDING_OFF = 0
+    
+    # Editor slots contains names of SLOTs from the QScintilla editor
+    # widgets. We take SIGNALs from the MainWindow object and pass
+    # them to slots in whichever editor pane is currently active.
     EDITOR_SLOTS = ['cut', 'copy', 'paste', 'undo', 'redo', 'selectAll',
                     'foldAll', 'clearFolds', 'zoomIn', 'zoomOut',
                     'autoCompleteFromAll']
@@ -394,8 +398,8 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     def indent_selection(self):
         editor = self.get_editor()
         if editor.hasSelectedText():
-            lineFrom, indexFrom, lineTo, indexTo = self.get_current_selection()
-            for line in xrange(lineFrom, lineTo):
+            lineFrom, indexFrom, lineTo, indexTo = self.get_current_selection(editor)
+            for line in xrange(lineFrom, lineTo + 1):
                 editor.indent(line)
         else:
             line, index = editor.getCursorPosition()
@@ -405,8 +409,8 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     def unindent_selection(self):
         editor = self.get_editor()
         if editor.hasSelectedText():
-            lineFrom, indexFrom, lineTo, indexTo = self.get_current_selection()
-            for line in xrange(lineFrom, lineTo):
+            lineFrom, indexFrom, lineTo, indexTo = self.get_current_selection(editor)
+            for line in xrange(lineFrom, lineTo + 1):
                 editor.unindent(line)
         else:
             line, index = editor.getCursorPosition()
@@ -535,8 +539,10 @@ http://code.google.com/p/python-csp/wiki/Tutorial
         else:
             self.get_editor().markerAdd(nline, MainWindow.BREAK_MARKER_NUM)
 
-    def get_current_selection(self):
-        lineFrom, indexFrom, lineTo, indexTo = self.get_editor().getSelection()
+    def get_current_selection(self, editor=None):
+        if editor is None:
+            editor = self.get_editor()
+        lineFrom, indexFrom, lineTo, indexTo = editor.getSelection()
         return lineFrom, indexFrom, lineTo, indexTo
 
     def lint_error(self, msg, editor=None):
