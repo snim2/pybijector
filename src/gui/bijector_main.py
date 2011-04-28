@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui/bijector_main.ui'
 #
-# Created: Wed Apr 27 13:22:20 2011
+# Created: Thu Apr 28 15:08:19 2011
 #      by: PyQt4 UI code generator 4.8.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -148,8 +148,6 @@ class Ui_MainWindow(object):
         self.action_Copy_Edit.setObjectName(_fromUtf8("action_Copy_Edit"))
         self.action_Paste_Edit = QtGui.QAction(MainWindow)
         self.action_Paste_Edit.setObjectName(_fromUtf8("action_Paste_Edit"))
-        self.action_Delete_Edit = QtGui.QAction(MainWindow)
-        self.action_Delete_Edit.setObjectName(_fromUtf8("action_Delete_Edit"))
         self.action_Select_All_Edit = QtGui.QAction(MainWindow)
         self.action_Select_All_Edit.setObjectName(_fromUtf8("action_Select_All_Edit"))
         self.action_Convert_to_CSP_Bijector = QtGui.QAction(MainWindow)
@@ -226,7 +224,6 @@ class Ui_MainWindow(object):
         self.menu_Edit.addAction(self.action_Cut_Edit)
         self.menu_Edit.addAction(self.action_Copy_Edit)
         self.menu_Edit.addAction(self.action_Paste_Edit)
-        self.menu_Edit.addAction(self.action_Delete_Edit)
         self.menu_Edit.addSeparator()
         self.menu_Edit.addAction(self.action_Select_All_Edit)
         self.menuBijector.addAction(self.action_Convert_to_CSP_Bijector)
@@ -295,12 +292,11 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.action_Convert_to_Threads_Bijector, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.to_threads)
         QtCore.QObject.connect(self.action_Copy_Edit, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.copy)
         QtCore.QObject.connect(self.action_Cut_Edit, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.cut)
-        QtCore.QObject.connect(self.action_Delete_Edit, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.delete)
         QtCore.QObject.connect(self.action_Paste_Edit, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.paste)
         QtCore.QObject.connect(self.action_Redo_Edit, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.redo)
-        QtCore.QObject.connect(self.action_Select_All_Edit, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.select_all)
+        QtCore.QObject.connect(self.action_Select_All_Edit, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.selectAll)
         QtCore.QObject.connect(self.action_Undo_Edit, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.undo)
-        QtCore.QObject.connect(self.action_Fold_All_Source, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.fold_all)
+        QtCore.QObject.connect(self.action_Fold_All_Source, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.foldAll)
         QtCore.QObject.connect(self.action_Indent_Selection_Source, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.indent_selection)
         QtCore.QObject.connect(self.action_Folding_Mode_Source, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.toggle_folding_mode)
         QtCore.QObject.connect(self.action_Word_Wrap_Source, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.toggle_word_wrap)
@@ -310,7 +306,7 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.action_Run_Threaded_Code_Run, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.run_threads)
         QtCore.QObject.connect(self.action_Debug_CSP_Code_Run, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.debug_csp)
         QtCore.QObject.connect(self.action_Debug_Threaded_Code_Run, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.debug_threads)
-        QtCore.QObject.connect(self.action_Remove_All_Folds_Source, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.clear_all_folds)
+        QtCore.QObject.connect(self.action_Remove_All_Folds_Source, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.clearFolds)
         QtCore.QObject.connect(self.action_Clear_All_Breakpoints_Run, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.remove_all_breakpoints)
         QtCore.QObject.connect(self.action_Toggle_Console_Window, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.toggle_console)
         QtCore.QObject.connect(self.action_Threaded_Code_Editor, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.focus_threads)
@@ -322,8 +318,8 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.action_Replace_Search, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.replace)
         QtCore.QObject.connect(self.action_Goto_Line_Search, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.goto_line)
         QtCore.QObject.connect(self.action_Clear_Menu_Files, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.clear_recent_files)
-        QtCore.QObject.connect(self.action_Zoom_In_View, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.zoom_in)
-        QtCore.QObject.connect(self.action_Zoom_Out_View, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.zoom_out)
+        QtCore.QObject.connect(self.action_Zoom_In_View, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.zoomIn)
+        QtCore.QObject.connect(self.action_Zoom_Out_View, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.zoomOut)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -365,7 +361,6 @@ class Ui_MainWindow(object):
         self.action_Copy_Edit.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+C", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Paste_Edit.setText(QtGui.QApplication.translate("MainWindow", "&Paste", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Paste_Edit.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+V", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_Delete_Edit.setText(QtGui.QApplication.translate("MainWindow", "&Delete", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Select_All_Edit.setText(QtGui.QApplication.translate("MainWindow", "Select &All", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Select_All_Edit.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+A", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Convert_to_CSP_Bijector.setText(QtGui.QApplication.translate("MainWindow", "Convert to &CSP", None, QtGui.QApplication.UnicodeUTF8))

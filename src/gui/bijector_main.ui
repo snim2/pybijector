@@ -174,7 +174,6 @@
     <addaction name="action_Cut_Edit"/>
     <addaction name="action_Copy_Edit"/>
     <addaction name="action_Paste_Edit"/>
-    <addaction name="action_Delete_Edit"/>
     <addaction name="separator"/>
     <addaction name="action_Select_All_Edit"/>
    </widget>
@@ -363,11 +362,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+V</string>
-   </property>
-  </action>
-  <action name="action_Delete_Edit">
-   <property name="text">
-    <string>&amp;Delete</string>
    </property>
   </action>
   <action name="action_Select_All_Edit">
@@ -795,22 +789,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>action_Delete_Edit</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>delete()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>399</x>
-     <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>action_Paste_Edit</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -846,7 +824,7 @@
    <sender>action_Select_All_Edit</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>select_all()</slot>
+   <slot>selectAll()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -878,7 +856,7 @@
    <sender>action_Fold_All_Source</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>fold_all()</slot>
+   <slot>foldAll()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -1038,7 +1016,7 @@
    <sender>action_Remove_All_Folds_Source</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>clear_all_folds()</slot>
+   <slot>clearFolds()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -1230,7 +1208,7 @@
    <sender>action_Zoom_In_View</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>zoom_in()</slot>
+   <slot>zoomIn()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -1246,7 +1224,7 @@
    <sender>action_Zoom_Out_View</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>zoom_out()</slot>
+   <slot>zoomOut()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -1273,10 +1251,10 @@
   <slot>copy()</slot>
   <slot>paste()</slot>
   <slot>delete()</slot>
-  <slot>select_all()</slot>
+  <slot>selectAll()</slot>
   <slot>to_csp()</slot>
   <slot>to_threads()</slot>
-  <slot>fold_all()</slot>
+  <slot>foldAll()</slot>
   <slot>indent_selection()</slot>
   <slot>unindent_selection()</slot>
   <slot>toggle_folding_mode()</slot>
@@ -1286,7 +1264,7 @@
   <slot>run_threads()</slot>
   <slot>debug_csp()</slot>
   <slot>debug_threads()</slot>
-  <slot>clear_all_folds()</slot>
+  <slot>clearFolds()</slot>
   <slot>remove_all_breakpoints()</slot>
   <slot>toggle_console()</slot>
   <slot>focus_csp()</slot>
@@ -1299,7 +1277,8 @@
   <slot>goto_line()</slot>
   <slot>recent_files()</slot>
   <slot>clear_recent_files()</slot>
-  <slot>zoom_in()</slot>
-  <slot>zoom_out()</slot>
+  <slot>zoomIn()</slot>
+  <slot>zoomOut()</slot>
+  <slot>autoCompleteFromAll()</slot>
  </slots>
 </ui>

@@ -31,7 +31,7 @@ from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciStyle
 from PyQt4 import Qt
 
 from bijector_main import Ui_MainWindow
-from biject_linter import Lint, PyLintIterator, CSPLintIterator, LintMessage
+from biject_linter import Lint, PyLintIterator, CSPLintIterator
 
 import os
 import syntax # Basic syntax highlighting where QScintilla would be overkill.
@@ -140,7 +140,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         # Shortcuts without menu items
         self.connect(Qt.QShortcut(Qt.QKeySequence("Ctrl+Space"), self), 
                      Qt.SIGNAL('activated()'),
-                     self.autocomplete)
+                     self.autoCompleteFromAll)
 
         # Start with the focus on the left hand editor.
         self.cspEdit.setFocus()
@@ -228,7 +228,6 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         self.action_Cut_Edit.setIcon(Qt.QIcon.fromTheme('edit-cut'))
         self.action_Copy_Edit.setIcon(Qt.QIcon.fromTheme('edit-copy'))
         self.action_Paste_Edit.setIcon(Qt.QIcon.fromTheme('edit-paste'))
-        self.action_Delete_Edit.setIcon(Qt.QIcon.fromTheme('edit-delete'))
         self.action_Select_All_Edit.setIcon(Qt.QIcon.fromTheme('edit-select-all'))
         # Source menu.
         # Run menu.
@@ -424,42 +423,42 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
                 return
 
         self.get_editor().clear()
+        old_filename = self.filename
         self.set_filename('')
         self.setWindowTitle(self.app_name)
         self.action_Close_File.setDisabled(True)
+        self.message('Closed %s.' % old_filename)
         return
 
     #
-    # Edit menu actions.
+    # Route SLOTS from this object to the currently active editor.
     #
 
-    def cut(self):
-        self.get_editor().cut()
-        return
-
-    def copy(self):
-        self.get_editor().copy()
-        return
-    
-    def paste(self):
-        self.get_editor().paste()
-        return
-
-    def delete(self):
-        self.get_editor().delete()
-        return
-
-    def undo(self):
-        self.get_editor().undo()
-        return
-
-    def redo(self):
-        self.get_editor().redo()
-        return
-
-    def select_all(self):
-        self.get_editor().selectAll()
-        return
+    def __getattr__(self, name):
+        if name == 'cut':
+            return getattr(self.get_editor(), name)
+        elif name == 'copy':
+            return getattr(self.get_editor(), name)
+        elif name == 'paste':
+            return getattr(self.get_editor(), name)        
+        elif name == 'undo':
+            return getattr(self.get_editor(), name)
+        elif name == 'redo':
+            return getattr(self.get_editor(), name)
+        elif name == 'selectAll':
+            return getattr(self.get_editor(), name)
+        elif name == 'foldAll':
+            return getattr(self.get_editor(), name)
+        elif name == 'clearFolds':
+            return getattr(self.get_editor(), name)
+        elif name == 'zoomIn':
+            return getattr(self.get_editor(), name)
+        elif name == 'zoomOut':
+            return getattr(self.get_editor(), name)
+        elif name == 'autoCompleteFromAll':
+            return getattr(self.get_editor(), name)
+        else:
+            return object.__getattribute__(self, name)
 
     #
     # Search menu actions.
@@ -502,15 +501,12 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
                                                  editor.getCursorPosition()[0]+1, 1, editor.lines(), 1)
         if ok: # Only act if the user pressed 'ok'.
             editor.setCursorPosition(line_number - 1, 0)
+            self.message('At line %d.' % line_number)
         return
     
     #
     # Source menu actions.
     #
-
-    def fold_all(self):
-        self.get_editor().foldAll()
-        return
 
     def toggle_folding_mode(self):
         if self.action_Folding_Mode_Source.isChecked():
@@ -644,16 +640,6 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         self.pythonConsole.setFocus()
         return
 
-    def zoom_in(self):
-        self.cspEdit.zoomIn()
-        self.threadEdit.zoomIn()
-        return
-
-    def zoom_out(self):
-        self.cspEdit.zoomOut()
-        self.threadEdit.zoomOut()
-        return
-
     #
     # Help menu actions.
     #
@@ -669,10 +655,6 @@ http://code.google.com/p/python-csp/wiki/Tutorial
     #
     # Slots without menu signals.
     #
-
-    def autocomplete(self):
-        self.get_editor().autoCompleteFromAll()
-        return
 
     def on_margin_clicked(self, nmargin, nline, modifiers):
         # Toggle marker for the line the margin was clicked on
@@ -742,8 +724,10 @@ http://code.google.com/p/python-csp/wiki/Tutorial
 
     def run_lint(self, editor):
         if editor == self.cspEdit:
+            self.clear_all_lint_errors(editor=self.cspEdit)
             self.csplint.start(self.filename, ['-p'])
         else:
+            self.clear_all_lint_errors(editor=self.threadEdit)
             self.pylint.start(self.filename, ['-f', 'text', '-r', 'n'])
         return
 
