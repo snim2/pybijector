@@ -171,6 +171,7 @@
     </property>
     <addaction name="action_Undo_Edit"/>
     <addaction name="action_Redo_Edit"/>
+    <addaction name="separator"/>
     <addaction name="action_Cut_Edit"/>
     <addaction name="action_Copy_Edit"/>
     <addaction name="action_Paste_Edit"/>
@@ -179,7 +180,7 @@
    </widget>
    <widget class="QMenu" name="menuBijector">
     <property name="title">
-     <string>Bijector</string>
+     <string>&amp;Bijector</string>
     </property>
     <addaction name="action_Convert_to_CSP_Bijector"/>
     <addaction name="action_Convert_to_Threads_Bijector"/>
@@ -213,11 +214,10 @@
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
-     <string>View</string>
+     <string>&amp;View</string>
     </property>
     <addaction name="action_Threaded_Code_Editor"/>
     <addaction name="action_Python_CSP_Code_Editor"/>
-    <addaction name="action_Consoles_Windows"/>
     <addaction name="separator"/>
     <addaction name="action_Toggle_Console_Window"/>
     <addaction name="separator"/>
@@ -230,7 +230,6 @@
     </property>
     <addaction name="action_Find_Search"/>
     <addaction name="action_Find_Next_Search"/>
-    <addaction name="action_Find_Previous_Search"/>
     <addaction name="separator"/>
     <addaction name="action_Replace_Search"/>
     <addaction name="separator"/>
@@ -238,9 +237,9 @@
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menu_Edit"/>
-   <addaction name="menuWindow"/>
    <addaction name="menuSearch"/>
    <addaction name="menuSource"/>
+   <addaction name="menuWindow"/>
    <addaction name="menu_Run"/>
    <addaction name="menuBijector"/>
    <addaction name="menu_Help"/>
@@ -263,8 +262,11 @@
    <addaction name="action_Undo_Edit"/>
    <addaction name="action_Redo_Edit"/>
    <addaction name="separator"/>
-   <addaction name="action_Convert_to_CSP_Bijector"/>
-   <addaction name="action_Convert_to_Threads_Bijector"/>
+   <addaction name="action_Find_Search"/>
+   <addaction name="action_Replace_Search"/>
+   <addaction name="separator"/>
+   <addaction name="action_Run_Threaded_Code_Run"/>
+   <addaction name="action_Run_CSP_Code_Run"/>
   </widget>
   <action name="action_Open_File">
    <property name="text">
@@ -538,14 +540,6 @@
     <string>Ctrl+G</string>
    </property>
   </action>
-  <action name="action_Find_Previous_Search">
-   <property name="text">
-    <string>Find &amp;Previous</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+G</string>
-   </property>
-  </action>
   <action name="action_Goto_Line_Search">
    <property name="text">
     <string>&amp;Goto Line</string>
@@ -559,7 +553,7 @@
     <string>&amp;Replace</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+R</string>
+    <string>Ctrl+H</string>
    </property>
   </action>
   <action name="action_Clear_Menu_Files">
@@ -1129,22 +1123,6 @@
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
    <slot>find_next()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>399</x>
-     <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>action_Find_Previous_Search</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>find_previous()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>

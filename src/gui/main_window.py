@@ -109,8 +109,9 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         self.threadEdit.setAnnotationDisplay(2)
 
         # TEST ANNOTATIONS. TODO: REMOVE WHEN FIXED.
-        # self.lint_error(LintMessage(1, 'foo bar flibble', 'W'), editor=self.threadEdit)
-        # self.lint_error(LintMessage(1, 'foo bar flibble', 'W'), editor=self.cspEdit)
+#        from biject_linter import LintMessage
+#        self.lint_error(LintMessage(1, 'foo bar flibble', 'W'), editor=self.threadEdit)
+#        self.lint_error(LintMessage(1, 'foo bar flibble', 'W'), editor=self.cspEdit)
         
         # By default, hide the console tabs.
         self.action_Toggle_Console_Window.setChecked(False)
@@ -229,14 +230,23 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         self.action_Copy_Edit.setIcon(Qt.QIcon.fromTheme('edit-copy'))
         self.action_Paste_Edit.setIcon(Qt.QIcon.fromTheme('edit-paste'))
         self.action_Select_All_Edit.setIcon(Qt.QIcon.fromTheme('edit-select-all'))
-        # Source menu.
+        # Search menu.
+        self.action_Find_Search.setIcon(Qt.QIcon.fromTheme('edit-find'))
+        self.action_Find_Next_Search.setIcon(Qt.QIcon.fromTheme('edit-find'))
+        self.action_Replace_Search.setIcon(Qt.QIcon.fromTheme('edit-find-replace'))
+        self.action_Goto_Line_Search.setIcon(Qt.QIcon.fromTheme('go-jump'))
+        # Source menu. 
+        self.action_Indent_Selection_Source.setIcon(Qt.QIcon.fromTheme('format-indent-more'))
+        self.action_Unindent_Selection_Source.setIcon(Qt.QIcon.fromTheme('format-indent-less'))
+        # View menu.
+        self.action_Zoom_In_View.setIcon(Qt.QIcon.fromTheme('zoom-in'))
+        self.action_Zoom_Out_View.setIcon(Qt.QIcon.fromTheme('zoom-out'))
         # Run menu.
         self.action_Run_CSP_Code_Run.setIcon(Qt.QIcon.fromTheme('media-playback-start'))
         self.action_Run_Threaded_Code_Run.setIcon(Qt.QIcon.fromTheme('media-playback-start'))
         # Bijector menu.
         self.action_Convert_to_CSP_Bijector.setIcon(Qt.QIcon.fromTheme('go-first'))
         self.action_Convert_to_Threads_Bijector.setIcon(Qt.QIcon.fromTheme('go-last'))
-        # Window menu.
         # Help menu.
         self.action_About_Help.setIcon(Qt.QIcon.fromTheme('help-about'))
         return
@@ -286,6 +296,36 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         editor.setLexer(lexer)
         editor.SendScintilla(QsciScintilla.SCI_STYLESETFONT, 1, 'Courier')
         return
+
+    #
+    # Route SLOTS from this object to the currently active editor.
+    #
+
+    def __getattr__(self, name):
+        if name == 'cut':
+            return getattr(self.get_editor(), name)
+        elif name == 'copy':
+            return getattr(self.get_editor(), name)
+        elif name == 'paste':
+            return getattr(self.get_editor(), name)        
+        elif name == 'undo':
+            return getattr(self.get_editor(), name)
+        elif name == 'redo':
+            return getattr(self.get_editor(), name)
+        elif name == 'selectAll':
+            return getattr(self.get_editor(), name)
+        elif name == 'foldAll':
+            return getattr(self.get_editor(), name)
+        elif name == 'clearFolds':
+            return getattr(self.get_editor(), name)
+        elif name == 'zoomIn':
+            return getattr(self.get_editor(), name)
+        elif name == 'zoomOut':
+            return getattr(self.get_editor(), name)
+        elif name == 'autoCompleteFromAll':
+            return getattr(self.get_editor(), name)
+        else:
+            return object.__getattribute__(self, name)
 
     #
     # File menu actions.
@@ -431,36 +471,6 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         return
 
     #
-    # Route SLOTS from this object to the currently active editor.
-    #
-
-    def __getattr__(self, name):
-        if name == 'cut':
-            return getattr(self.get_editor(), name)
-        elif name == 'copy':
-            return getattr(self.get_editor(), name)
-        elif name == 'paste':
-            return getattr(self.get_editor(), name)        
-        elif name == 'undo':
-            return getattr(self.get_editor(), name)
-        elif name == 'redo':
-            return getattr(self.get_editor(), name)
-        elif name == 'selectAll':
-            return getattr(self.get_editor(), name)
-        elif name == 'foldAll':
-            return getattr(self.get_editor(), name)
-        elif name == 'clearFolds':
-            return getattr(self.get_editor(), name)
-        elif name == 'zoomIn':
-            return getattr(self.get_editor(), name)
-        elif name == 'zoomOut':
-            return getattr(self.get_editor(), name)
-        elif name == 'autoCompleteFromAll':
-            return getattr(self.get_editor(), name)
-        else:
-            return object.__getattribute__(self, name)
-
-    #
     # Search menu actions.
     #
 
@@ -477,15 +487,14 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
         return
     
     def find_next(self):
+        if self.searchString is None:
+            self.find()
+            return
         if not self.get_editor().findNext():
             Qt.QMessageBox.information(self, self.app_name,
                                        ('No more occurances of ' +
                                         self.searchString +
                                         ' found in document.'))
-        return
-    
-    def find_previous(self):
-        # WRITEME
         return
     
     def replace(self):
@@ -720,7 +729,7 @@ http://code.google.com/p/python-csp/wiki/Tutorial
     def open_recent_file(self):
         action = self.sender()
         if action:
-            self.load_file(action.data())
+            self.load_file(filename=action.data())
 
     def run_lint(self, editor):
         if editor == self.cspEdit:
