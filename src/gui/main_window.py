@@ -414,7 +414,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
  
     def close_file(self):
         if self.get_editor().isModified():
-            rc = Qt.QMessageBox.information(self,'pyBijector',
+            rc = Qt.QMessageBox.information(self, self.app_name,
                                             'The document has been changed since the last save.',
                                             'Save Now', 'Cancel', 'Leave Anyway', 0, 1)
             if rc == 0:
@@ -646,11 +646,11 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow):
     
     def about(self):
         Qt.QMessageBox.about(self, self.app_name,
-                             """pyBijector translates between threaded Python code and CSP.
+                             """%s translates between threaded Python code and CSP. 
 
 Please see the python-csp tutorial for more details:
 http://code.google.com/p/python-csp/wiki/Tutorial
-""")
+""" % self.app_name)
 
     #
     # Slots without menu signals.
