@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui/bijector_main.ui'
 #
-# Created: Thu Apr 28 15:08:19 2011
+# Created: Thu Apr 28 15:19:24 2011
 #      by: PyQt4 UI code generator 4.8.3
 #
 # WARNING! All changes made in this file will be lost!
