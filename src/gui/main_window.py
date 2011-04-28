@@ -55,6 +55,9 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     MAX_RECENT_FILES = 10
     FOLDING_ON = 4
     FOLDING_OFF = 0
+    EDITOR_SLOTS = ['cut', 'copy', 'paste', 'undo', 'redo', 'selectAll',
+                    'foldAll', 'clearFolds', 'zoomIn', 'zoomOut',
+                    'autoCompleteFromAll']
     
     def __init__(self, parent=None):
         Qt.QMainWindow.__init__(self)
@@ -177,27 +180,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     #
 
     def __getattr__(self, name):
-        if name == 'cut':
-            return getattr(self.get_editor(), name)
-        elif name == 'copy':
-            return getattr(self.get_editor(), name)
-        elif name == 'paste':
-            return getattr(self.get_editor(), name)        
-        elif name == 'undo':
-            return getattr(self.get_editor(), name)
-        elif name == 'redo':
-            return getattr(self.get_editor(), name)
-        elif name == 'selectAll':
-            return getattr(self.get_editor(), name)
-        elif name == 'foldAll':
-            return getattr(self.get_editor(), name)
-        elif name == 'clearFolds':
-            return getattr(self.get_editor(), name)
-        elif name == 'zoomIn':
-            return getattr(self.get_editor(), name)
-        elif name == 'zoomOut':
-            return getattr(self.get_editor(), name)
-        elif name == 'autoCompleteFromAll':
+        if name in MainWindow.EDITOR_SLOTS:
             return getattr(self.get_editor(), name)
         else:
             return object.__getattribute__(self, name)
