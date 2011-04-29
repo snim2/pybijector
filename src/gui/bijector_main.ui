@@ -68,7 +68,7 @@
         <enum>QTabWidget::North</enum>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <property name="elideMode">
         <enum>Qt::ElideNone</enum>
@@ -82,24 +82,7 @@
           <widget class="QTextBrowser" name="pythonConsole"/>
          </item>
          <item>
-          <widget class="QLineEdit" name="lineEdit_3"/>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="tab_5">
-        <attribute name="title">
-         <string>CSP code console</string>
-        </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_6">
-         <item>
-          <widget class="QDialogButtonBox" name="buttonBox">
-           <property name="standardButtons">
-            <set>QDialogButtonBox::Abort|QDialogButtonBox::Reset</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QTextBrowser" name="cspConsole"/>
+          <widget class="QLineEdit" name="pythonLineEdit"/>
          </item>
         </layout>
        </widget>
@@ -117,6 +100,23 @@
          </item>
          <item>
           <widget class="QTextBrowser" name="threadConsole"/>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab_5">
+        <attribute name="title">
+         <string>CSP code console</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_6">
+         <item>
+          <widget class="QDialogButtonBox" name="buttonBox">
+           <property name="standardButtons">
+            <set>QDialogButtonBox::Abort|QDialogButtonBox::Reset</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QTextBrowser" name="cspConsole"/>
          </item>
         </layout>
        </widget>
@@ -1214,6 +1214,54 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pythonLineEdit</sender>
+   <signal>returnPressed()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>enter_python_string()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>765</x>
+     <y>539</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>922</x>
+     <y>540</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox_2</sender>
+   <signal>clicked(QAbstractButton*)</signal>
+   <receiver>threadConsole</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>73</x>
+     <y>321</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>96</x>
+     <y>366</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>clicked(QAbstractButton*)</signal>
+   <receiver>cspConsole</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>66</x>
+     <y>332</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>98</x>
+     <y>362</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>load_file()</slot>
@@ -1258,5 +1306,6 @@
   <slot>zoomIn()</slot>
   <slot>zoomOut()</slot>
   <slot>autoCompleteFromAll()</slot>
+  <slot>enter_python_string()</slot>
  </slots>
 </ui>

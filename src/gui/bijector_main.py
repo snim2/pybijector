@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui/bijector_main.ui'
 #
-# Created: Thu Apr 28 21:28:35 2011
+# Created: Fri Apr 29 01:27:51 2011
 #      by: PyQt4 UI code generator 4.8.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -63,22 +63,10 @@ class Ui_MainWindow(object):
         self.pythonConsole = QtGui.QTextBrowser(self.tab_3)
         self.pythonConsole.setObjectName(_fromUtf8("pythonConsole"))
         self.verticalLayout_4.addWidget(self.pythonConsole)
-        self.lineEdit_3 = QtGui.QLineEdit(self.tab_3)
-        self.lineEdit_3.setObjectName(_fromUtf8("lineEdit_3"))
-        self.verticalLayout_4.addWidget(self.lineEdit_3)
+        self.pythonLineEdit = QtGui.QLineEdit(self.tab_3)
+        self.pythonLineEdit.setObjectName(_fromUtf8("pythonLineEdit"))
+        self.verticalLayout_4.addWidget(self.pythonLineEdit)
         self.consoleTabs.addTab(self.tab_3, _fromUtf8(""))
-        self.tab_5 = QtGui.QWidget()
-        self.tab_5.setObjectName(_fromUtf8("tab_5"))
-        self.verticalLayout_6 = QtGui.QVBoxLayout(self.tab_5)
-        self.verticalLayout_6.setObjectName(_fromUtf8("verticalLayout_6"))
-        self.buttonBox = QtGui.QDialogButtonBox(self.tab_5)
-        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Abort|QtGui.QDialogButtonBox.Reset)
-        self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
-        self.verticalLayout_6.addWidget(self.buttonBox)
-        self.cspConsole = QtGui.QTextBrowser(self.tab_5)
-        self.cspConsole.setObjectName(_fromUtf8("cspConsole"))
-        self.verticalLayout_6.addWidget(self.cspConsole)
-        self.consoleTabs.addTab(self.tab_5, _fromUtf8(""))
         self.tab_4 = QtGui.QWidget()
         self.tab_4.setObjectName(_fromUtf8("tab_4"))
         self.verticalLayout_5 = QtGui.QVBoxLayout(self.tab_4)
@@ -91,6 +79,18 @@ class Ui_MainWindow(object):
         self.threadConsole.setObjectName(_fromUtf8("threadConsole"))
         self.verticalLayout_5.addWidget(self.threadConsole)
         self.consoleTabs.addTab(self.tab_4, _fromUtf8(""))
+        self.tab_5 = QtGui.QWidget()
+        self.tab_5.setObjectName(_fromUtf8("tab_5"))
+        self.verticalLayout_6 = QtGui.QVBoxLayout(self.tab_5)
+        self.verticalLayout_6.setObjectName(_fromUtf8("verticalLayout_6"))
+        self.buttonBox = QtGui.QDialogButtonBox(self.tab_5)
+        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Abort|QtGui.QDialogButtonBox.Reset)
+        self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
+        self.verticalLayout_6.addWidget(self.buttonBox)
+        self.cspConsole = QtGui.QTextBrowser(self.tab_5)
+        self.cspConsole.setObjectName(_fromUtf8("cspConsole"))
+        self.verticalLayout_6.addWidget(self.cspConsole)
+        self.consoleTabs.addTab(self.tab_5, _fromUtf8(""))
         self.gridLayout.addWidget(self.splitter_2, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
@@ -279,7 +279,7 @@ class Ui_MainWindow(object):
         self.toolBar.addAction(self.action_Run_CSP_Code_Run)
 
         self.retranslateUi(MainWindow)
-        self.consoleTabs.setCurrentIndex(2)
+        self.consoleTabs.setCurrentIndex(0)
         QtCore.QObject.connect(self.action_Open_File, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.load_file)
         QtCore.QObject.connect(self.action_New_File, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.new_file)
         QtCore.QObject.connect(self.action_About_Help, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.about)
@@ -319,13 +319,16 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.action_Clear_Menu_Files, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.clear_recent_files)
         QtCore.QObject.connect(self.action_Zoom_In_View, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.zoomIn)
         QtCore.QObject.connect(self.action_Zoom_Out_View, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.zoomOut)
+        QtCore.QObject.connect(self.pythonLineEdit, QtCore.SIGNAL(_fromUtf8("returnPressed()")), MainWindow.enter_python_string)
+        QtCore.QObject.connect(self.buttonBox_2, QtCore.SIGNAL(_fromUtf8("clicked(QAbstractButton*)")), self.threadConsole.clear)
+        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("clicked(QAbstractButton*)")), self.cspConsole.clear)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
         self.consoleTabs.setTabText(self.consoleTabs.indexOf(self.tab_3), QtGui.QApplication.translate("MainWindow", "Python interpreter", None, QtGui.QApplication.UnicodeUTF8))
-        self.consoleTabs.setTabText(self.consoleTabs.indexOf(self.tab_5), QtGui.QApplication.translate("MainWindow", "CSP code console", None, QtGui.QApplication.UnicodeUTF8))
         self.consoleTabs.setTabText(self.consoleTabs.indexOf(self.tab_4), QtGui.QApplication.translate("MainWindow", "Threaded code console", None, QtGui.QApplication.UnicodeUTF8))
+        self.consoleTabs.setTabText(self.consoleTabs.indexOf(self.tab_5), QtGui.QApplication.translate("MainWindow", "CSP code console", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Recent_Files.setTitle(QtGui.QApplication.translate("MainWindow", "&Recent Files", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Help.setTitle(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))

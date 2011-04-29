@@ -10,6 +10,7 @@ Current features:
  * Code autocompletion (Ctrl+Space).
  * Increase / decrease font size.
  * Automatic annotations for lint reports.
+ * Interactive Python interpreter.
 
 Copyright (C) Sarah Mount, 2011.
 
@@ -45,8 +46,6 @@ __date__ = 'April 2011'
 # pylint: disable=W0511
 
 # TODO: Replace.
-# TODO: Python interpreter for running code.
-# TODO: Interactive Python interpreter.
 # TODO: Interactive Python debugger.
 # TODO: Interactive python-csp debugger.
 # FIXME: get_editor() sometimes returns wrong editor.
@@ -103,6 +102,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         self.toggle_word_wrap()
         
         # Apply basic syntax highlighting to consoles.
+        self.highlight_python = syntax.PythonHighlighter(self.pythonConsole.document())
         self.highlight_thread = syntax.PythonHighlighter(self.threadConsole.document())
         self.highlight_csp = syntax.PythonHighlighter(self.cspConsole.document())
 
@@ -137,7 +137,12 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         self.connect(self.thread_interp,
                      Qt.SIGNAL('results(QString)'),
                      self.parse_thread_run)
-
+        self.python_console = Interpreter(MainWindow.PYTHON)
+        self.connect(self.python_console,
+                     Qt.SIGNAL('results(QString)'),
+                     self.python_console_output)
+        self.python_console.start_interactive(['-B', '-i', '-u', '-'])
+        self.pythonConsole.moveCursor(Qt.QTextCursor.End)
         # Start with focus on the left hand pane.
         self.threadEdit.setFocus()
         return
@@ -205,7 +210,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     
     def new_file(self):
         self.get_editor().clear()
-        self.set_filname('')
+        self.set_filename('')
         self.message('New file started')
         self.get_editor().setModified(False)
         self.action_Close_File.setDisabled(False)
@@ -455,7 +460,6 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         return
 
     def run_threads(self):
-        # WRITEME
         self.threadConsole.clear()
         if not self.action_Toggle_Console_Window.isChecked():
             self.action_Toggle_Console_Window.setChecked(True)
@@ -551,6 +555,37 @@ http://code.google.com/p/python-csp/wiki/Tutorial
 """ % self.app_name)
 
     #
+    # Interactive Python interpreter.
+    #
+    #
+
+    def append_python_console(self, text):
+        """Append text to the visible Python console.
+        """
+        self.pythonConsole.moveCursor(Qt.QTextCursor.End)
+        self.pythonConsole.insertPlainText(text + '\n')
+        self.pythonConsole.ensureCursorVisible()
+        return
+
+    def enter_python_string(self):
+        """SLOT called when editing finished in the pythonLineEdit widget.
+        The line of text is passed to a running Python interpreter.
+        """
+        code = self.pythonLineEdit.text()
+        self.append_python_console(code)
+        self.python_console.write(code)
+        self.pythonLineEdit.clear()
+        return
+
+    def python_console_output(self):
+        """Called when the interactive Python interpreter has results to display.
+        """
+        output = str(self.python_console.output)
+        if output:
+            self.append_python_console(output)
+        return
+    
+    #
     # Slots without menu signals.
     #
 
@@ -568,6 +603,9 @@ http://code.google.com/p/python-csp/wiki/Tutorial
         return lineFrom, indexFrom, lineTo, indexTo
 
     def lint_error(self, msg, editor=None):
+        """Annotate an editor with a single LintMessage object.
+        TODO: Refactor into linting module.
+        """
         if msg is None:
             return
         severities = {'I':self.info, 'C':self.info, 
@@ -653,7 +691,7 @@ http://code.google.com/p/python-csp/wiki/Tutorial
         if not output:
             self.csp_interp.readErrors()
             output = str(self.csp_interp.errors)
-        self.cspConsole.append()
+        self.cspConsole.append(output)
         return
 
     def parse_thread_run(self, word):
@@ -672,9 +710,14 @@ http://code.google.com/p/python-csp/wiki/Tutorial
 
             if reply == Qt.QMessageBox.Save:
                 self.save_file()
+                self.python_console.terminate()
                 event.accept()
             elif reply == Qt.QMessageBox.Discard:
+                self.python_console.terminate()
                 event.accept()
             elif reply == Qt.QMessageBox.Cancel:
                 event.ignore()
+        else:
+            self.python_console.terminate()
+            event.accept()
         return

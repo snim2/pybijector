@@ -24,34 +24,35 @@ from PyQt4 import Qt
 __author__ = 'Sarah Mount <s.mount@wlv.ac.uk>'
 __date__ = 'April 2011'
 
-
 # pylint: disable=W0511
 
-# threadConsole
-# cspConsole
-# pythonConsole
-
-# FIXME: Factor out absolute path names.
 
 class Interpreter(Qt.QWidget):
     # Based loosely on the PyQt wiki page:
     # http://diotavelli.net/PyQtWiki/Capturing_Output_from_a_Process
     # Edited by: Mathias Helminger, DavidBoddie, 193, cm-62
-    def __init__(self, interpreter):    
+    def __init__(self, interpreter): 
         Qt.QWidget.__init__(self)
         self.interpreter = interpreter
         self.process = Qt.QProcess()
+        # Merge standard in and out.
+        self.process.setReadChannel(Qt.QProcess.StandardOutput)
+        self.process.setProcessChannelMode(Qt.QProcess.MergedChannels)
         self.output = None
         self.errors = None
         self.connect(self.process, Qt.SIGNAL("finished(int)"), self.finished)
-        self.connect(self.process, Qt.SIGNAL("readyReadStderr()"), self.readErrors)
+        self.connect(self.process, Qt.SIGNAL("readyReadStandardError()"), self.readErrors)
+        self.connect(self.process, Qt.SIGNAL("readyReadStandardOutput()"), self.readOutput)
         return
         
     def start(self, filename, args):
-        self.output = None
-        self.errors = None
         interp_args = args + [filename]
         self.process.start(self.interpreter, interp_args)
+        return
+
+    def start_interactive(self, args):
+        self.process.start(self.interpreter, args)
+        self.process.waitForStarted(-1)
         return
 
     def finished(self, exit_status):
@@ -67,4 +68,11 @@ class Interpreter(Qt.QWidget):
         self.errors = self.process.readAllStandardError()
         return
 
+    def write(self, data):
+        self.process.write(str(data) + '\n')
+        self.process.waitForBytesWritten(-1)
+        return
 
+    def terminate(self):
+        self.process.kill()
+        return
