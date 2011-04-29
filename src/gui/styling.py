@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciStyle
+from PyQt4.Qsci import QsciScintilla, QsciLexerPython
 from PyQt4 import Qt
 
 __author__ = 'Sarah Mount <s.mount@wlv.ac.uk>'
@@ -38,29 +38,6 @@ class StyleMixin(object):
         self.font.setFamily('Courier')
         self.font.setFixedPitch(True)
         self.font.setPointSize(11)
-
-        self.lint_font = Qt.QFont()
-        self.lint_font.setFamily('Courier')
-        self.lint_font.setFixedPitch(True)
-        self.lint_font.setItalic(True)
-        self.lint_font.setPointSize(9)
-
-        # Styling for lint errors.
-        self.info = QsciStyle(-1,
-                               'Hilite style for lint info',
-                               Qt.QColor('#222222'),
-                               Qt.QColor('#FFFFFF'),
-                               self.lint_font)
-        self.warning = QsciStyle(-1,
-                                  'Hilite style for lint warnings',
-                                  Qt.QColor('#222222'),
-                                  Qt.QColor('#FFFF44'),
-                                  self.lint_font)
-        self.error = QsciStyle(-1,
-                                'Hilite style for lint errors',
-                                Qt.QColor('#222222'),
-                                Qt.QColor('#EE0000'),
-                                self.lint_font)
 
     def setup_icons(self):
         """Add default icons (from the system theme, where possible) to actions.

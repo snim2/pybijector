@@ -115,18 +115,11 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
                      Qt.SIGNAL('activated()'),
                      self.autoCompleteFromAll)
 
-        # Start with the focus on the left hand editor.
-        self.cspEdit.setFocus()
-
         # Set up linting.
-        self.csplint = Lint(MainWindow.CSPLINT)
-        self.pylint = Lint(MainWindow.PYLINT)
-        self.connect(self.csplint, 
-                     Qt.SIGNAL('results(QString)'),
-                     self.lint_results)
-        self.connect(self.pylint, 
-                     Qt.SIGNAL('results(QString)'),
-                     self.lint_results)
+        self.csplint = Lint(MainWindow.CSPLINT, self.cspEdit,
+                            CSPLintIterator, self.message)
+        self.pylint = Lint(MainWindow.PYLINT, self.threadEdit,
+                           PyLintIterator, self.message)
 
         # Set up interpreters and debuggers.
         self.csp_interp = Interpreter(MainWindow.PYTHON, self.cspConsole)
@@ -442,7 +435,8 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     #
 
     def run_csp(self):
-        # WRITEME
+        """Run code in the CSP editor pane and display output in a console.
+        """
         self.cspConsole.clear()
         if not self.action_Toggle_Console_Window.isChecked():
             self.action_Toggle_Console_Window.setChecked(True)
@@ -452,6 +446,8 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         return
 
     def run_threads(self):
+        """Run code in the thread editor pane and display output in a console.
+        """
         self.threadConsole.clear()
         if not self.action_Toggle_Console_Window.isChecked():
             self.action_Toggle_Console_Window.setChecked(True)
@@ -563,34 +559,6 @@ http://code.google.com/p/python-csp/wiki/Tutorial
         lineFrom, indexFrom, lineTo, indexTo = editor.getSelection()
         return lineFrom, indexFrom, lineTo, indexTo
 
-    def lint_error(self, msg, editor=None):
-        """Annotate an editor with a single LintMessage object.
-        TODO: Refactor into linting module.
-        """
-        if msg is None:
-            return
-        severities = {'I':self.info, 'C':self.info, 
-                      'W':self.warning, 'R':self.warning,
-                      'E':self.error, 'F':self.error}
-        if msg.severity in severities.keys():
-            hilite = severities[msg.severity]
-        else:
-            hilite = severities['W']
-        if editor:
-            editor.annotate(int(msg.linenum) - 1, msg.message, hilite)
-        else:
-            self.get_editor().annotate(int(msg.linenum) - 1, msg.message, hilite)
-        return
-
-    def clear_all_lint_errors(self, editor=None):
-        if editor is None:
-            editor = self.get_editor()
-        editor.clearAnnotations(-1)
-        return
-
-    def clear_lint_error(self, linenum):
-        self.get_editor().clearAnnotations(linenum - 1)
-        return
 
     def update_recent_file_actions(self):
         settings = Qt.QSettings(self.app_name, self.app_name)
@@ -626,25 +594,9 @@ http://code.google.com/p/python-csp/wiki/Tutorial
 
     def run_lint(self, editor):
         if editor == self.cspEdit:
-            self.clear_all_lint_errors(editor=self.cspEdit)
             self.csplint.start(self.filename, ['-p'])
         else:
-            self.clear_all_lint_errors(editor=self.threadEdit)
             self.pylint.start(self.filename, ['-f', 'text', '-r', 'n'])
-        return
-
-    def lint_results(self, emitter):
-        if str(emitter) == MainWindow.CSPLINT:
-            results = str(self.csplint.output)
-            for message in CSPLintIterator(results):
-                self.lint_error(message, editor=self.cspEdit)
-            self.message('Code annotated with csplint output.')
-        elif str(emitter) == MainWindow.PYLINT:
-            results = str(self.pylint.output)
-            for message in PyLintIterator(results):
-                self.lint_error(message, editor=self.threadEdit)
-            self.message('Code annotated with pylint output.')
-
         return
 
     def closeEvent(self, event):
