@@ -68,7 +68,7 @@
         <enum>QTabWidget::North</enum>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <property name="elideMode">
         <enum>Qt::ElideNone</enum>
@@ -761,6 +761,19 @@
    <header>Qsci/qsciscintilla.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>threadEdit</tabstop>
+  <tabstop>cspEdit</tabstop>
+  <tabstop>consoleTabs</tabstop>
+  <tabstop>pythonConsole</tabstop>
+  <tabstop>pythonLineEdit</tabstop>
+  <tabstop>buttonBox_2</tabstop>
+  <tabstop>threadConsole</tabstop>
+  <tabstop>threadLineEdit</tabstop>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>cspConsole</tabstop>
+  <tabstop>cspLineEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -1394,12 +1407,12 @@
    <slot>clear()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>84</x>
-     <y>317</y>
+     <x>95</x>
+     <y>361</y>
     </hint>
     <hint type="destinationlabel">
-     <x>101</x>
-     <y>326</y>
+     <x>112</x>
+     <y>526</y>
     </hint>
    </hints>
   </connection>
@@ -1410,12 +1423,12 @@
    <slot>clear()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>77</x>
-     <y>317</y>
+     <x>88</x>
+     <y>361</y>
     </hint>
     <hint type="destinationlabel">
-     <x>101</x>
-     <y>326</y>
+     <x>112</x>
+     <y>526</y>
     </hint>
    </hints>
   </connection>
@@ -1643,6 +1656,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>buttonBox_2</sender>
+   <signal>clicked(QAbstractButton*)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>abort_thread_console()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>844</x>
+     <y>345</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>923</x>
+     <y>307</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>clicked(QAbstractButton*)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>abort_csp_console()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>876</x>
+     <y>343</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>923</x>
+     <y>340</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>load_file()</slot>
@@ -1702,5 +1747,7 @@
   <slot>focus_interpreter()</slot>
   <slot>focus_thread_console()</slot>
   <slot>focus_csp_console()</slot>
+  <slot>abort_thread_console()</slot>
+  <slot>abort_csp_console()</slot>
  </slots>
 </ui>

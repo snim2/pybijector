@@ -448,6 +448,18 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         self.thread_interp.start(self.filename, [])
         return
 
+    def abort_thread_console(self):
+        """Terminate currently running interpreter or debugger for threaded code.
+        """
+        WRITEME
+        return
+
+    def abort_csp_console(self):
+        """Terminate currently running interpreter or debugger for csp code.
+        """
+        WRITEME
+        return
+
     #
     # Debug menu.
     #

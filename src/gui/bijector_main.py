@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui/bijector_main.ui'
 #
-# Created: Fri Apr 29 17:32:07 2011
+# Created: Fri Apr 29 18:06:27 2011
 #      by: PyQt4 UI code generator 4.8.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -347,7 +347,7 @@ class Ui_MainWindow(object):
         self.debugToolBar.addAction(self.action_Clear_All_Breakpoints_Run)
 
         self.retranslateUi(MainWindow)
-        self.consoleTabs.setCurrentIndex(2)
+        self.consoleTabs.setCurrentIndex(0)
         QtCore.QObject.connect(self.action_Open_File, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.load_file)
         QtCore.QObject.connect(self.action_New_File, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.new_file)
         QtCore.QObject.connect(self.action_About_Help, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.about)
@@ -403,7 +403,19 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.action_Python_Interpreter_View, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.focus_interpreter)
         QtCore.QObject.connect(self.action_Threaded_Console_View, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.focus_thread_console)
         QtCore.QObject.connect(self.action_CSP_Console_View, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.focus_csp_console)
+        QtCore.QObject.connect(self.buttonBox_2, QtCore.SIGNAL(_fromUtf8("clicked(QAbstractButton*)")), MainWindow.abort_thread_console)
+        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("clicked(QAbstractButton*)")), MainWindow.abort_csp_console)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        MainWindow.setTabOrder(self.threadEdit, self.cspEdit)
+        MainWindow.setTabOrder(self.cspEdit, self.consoleTabs)
+        MainWindow.setTabOrder(self.consoleTabs, self.pythonConsole)
+        MainWindow.setTabOrder(self.pythonConsole, self.pythonLineEdit)
+        MainWindow.setTabOrder(self.pythonLineEdit, self.buttonBox_2)
+        MainWindow.setTabOrder(self.buttonBox_2, self.threadConsole)
+        MainWindow.setTabOrder(self.threadConsole, self.threadLineEdit)
+        MainWindow.setTabOrder(self.threadLineEdit, self.buttonBox)
+        MainWindow.setTabOrder(self.buttonBox, self.cspConsole)
+        MainWindow.setTabOrder(self.cspConsole, self.cspLineEdit)
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
