@@ -431,7 +431,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         if not self.action_Toggle_Console_Window.isChecked():
             self.action_Toggle_Console_Window.setChecked(True)
             self.toggle_console()
-        self.consoleTabs.setCurrentWidget(self.cspConsole)
+        self.consoleTabs.setCurrentIndex(2)
         self.csp_interp.start(self.filename, [])
         return
 
@@ -442,7 +442,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         if not self.action_Toggle_Console_Window.isChecked():
             self.action_Toggle_Console_Window.setChecked(True)
             self.toggle_console()
-        self.consoleTabs.setCurrentWidget(self.threadConsole)
+        self.consoleTabs.setCurrentIndex(1)
         self.thread_interp.start(self.filename, [])
         return
 
