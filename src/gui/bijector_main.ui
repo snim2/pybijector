@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>926</width>
-    <height>600</height>
+    <height>604</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -217,6 +217,10 @@
     <addaction name="action_Python_CSP_Code_Editor"/>
     <addaction name="separator"/>
     <addaction name="action_Toggle_Console_Window"/>
+    <addaction name="separator"/>
+    <addaction name="action_Python_Interpreter_View"/>
+    <addaction name="action_Threaded_Console_View"/>
+    <addaction name="action_CSP_Console_View"/>
     <addaction name="separator"/>
     <addaction name="action_Zoom_In_View"/>
     <addaction name="action_Zoom_Out_View"/>
@@ -708,6 +712,39 @@
    </property>
    <property name="toolTip">
     <string>Evaluate the expression in the current context and print its value</string>
+   </property>
+  </action>
+  <action name="action_Python_Interpreter_View">
+   <property name="text">
+    <string>Python Interpreter</string>
+   </property>
+   <property name="toolTip">
+    <string>Show Python Interpreter</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+3</string>
+   </property>
+  </action>
+  <action name="action_Threaded_Console_View">
+   <property name="text">
+    <string>Threaded code console</string>
+   </property>
+   <property name="toolTip">
+    <string>Show threaded code console</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+4</string>
+   </property>
+  </action>
+  <action name="action_CSP_Console_View">
+   <property name="text">
+    <string>CSP code console</string>
+   </property>
+   <property name="toolTip">
+    <string>Show CSP code console</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+5</string>
    </property>
   </action>
  </widget>
@@ -1552,6 +1589,54 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>action_Python_Interpreter_View</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>focus_interpreter()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>462</x>
+     <y>301</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_Threaded_Console_View</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>focus_thread_console()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>462</x>
+     <y>301</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_CSP_Console_View</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>focus_csp_console()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>462</x>
+     <y>301</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>load_file()</slot>
@@ -1608,5 +1693,8 @@
   <slot>debug_jump()</slot>
   <slot>debug_args()</slot>
   <slot>debug_eval()</slot>
+  <slot>focus_interpreter()</slot>
+  <slot>focus_thread_console()</slot>
+  <slot>focus_csp_console()</slot>
  </slots>
 </ui>

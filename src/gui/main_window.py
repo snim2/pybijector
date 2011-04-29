@@ -545,8 +545,6 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     def toggle_console(self):
         if self.action_Toggle_Console_Window.isChecked():
             self.consoleTabs.show()
-            self.consoleTabs.setCurrentWidget(self.pythonConsole)
-            self.pythonConsole.setFocus()
         else:
             self.consoleTabs.hide()
         return
@@ -568,7 +566,24 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     def focus_console(self):
         if not self.consoleTabs.isVisible():
             self.consoleTabs.show()
-        self.pythonConsole.setFocus()
+        return
+
+    def focus_interpreter(self):
+        if not self.consoleTabs.isVisible():
+            self.consoleTabs.show()
+        self.consoleTabs.setCurrentIndex(0)
+        return
+
+    def focus_thread_console(self):
+        if not self.consoleTabs.isVisible():
+            self.consoleTabs.show()
+        self.consoleTabs.setCurrentIndex(1)
+        return
+
+    def focus_csp_console(self):
+        if not self.consoleTabs.isVisible():
+            self.consoleTabs.show()
+        self.consoleTabs.setCurrentIndex(2)
         return
 
     #

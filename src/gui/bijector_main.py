@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui/bijector_main.ui'
 #
-# Created: Fri Apr 29 13:12:57 2011
+# Created: Fri Apr 29 17:24:31 2011
 #      by: PyQt4 UI code generator 4.8.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -17,7 +17,7 @@ except AttributeError:
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
-        MainWindow.resize(926, 600)
+        MainWindow.resize(926, 604)
         MainWindow.setDockOptions(QtGui.QMainWindow.AllowTabbedDocks|QtGui.QMainWindow.AnimatedDocks|QtGui.QMainWindow.ForceTabbedDocks|QtGui.QMainWindow.VerticalTabs)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
@@ -233,6 +233,12 @@ class Ui_MainWindow(object):
         self.action_Args_To_Current_Function_Debug.setObjectName(_fromUtf8("action_Args_To_Current_Function_Debug"))
         self.action_Evaluate_Expression_in_Current_Context = QtGui.QAction(MainWindow)
         self.action_Evaluate_Expression_in_Current_Context.setObjectName(_fromUtf8("action_Evaluate_Expression_in_Current_Context"))
+        self.action_Python_Interpreter_View = QtGui.QAction(MainWindow)
+        self.action_Python_Interpreter_View.setObjectName(_fromUtf8("action_Python_Interpreter_View"))
+        self.action_Threaded_Console_View = QtGui.QAction(MainWindow)
+        self.action_Threaded_Console_View.setObjectName(_fromUtf8("action_Threaded_Console_View"))
+        self.action_CSP_Console_View = QtGui.QAction(MainWindow)
+        self.action_CSP_Console_View.setObjectName(_fromUtf8("action_CSP_Console_View"))
         self.menu_Recent_Files.addSeparator()
         self.menu_Recent_Files.addAction(self.action_Clear_Menu_Files)
         self.menuFile.addAction(self.action_New_File)
@@ -274,6 +280,10 @@ class Ui_MainWindow(object):
         self.menuWindow.addAction(self.action_Python_CSP_Code_Editor)
         self.menuWindow.addSeparator()
         self.menuWindow.addAction(self.action_Toggle_Console_Window)
+        self.menuWindow.addSeparator()
+        self.menuWindow.addAction(self.action_Python_Interpreter_View)
+        self.menuWindow.addAction(self.action_Threaded_Console_View)
+        self.menuWindow.addAction(self.action_CSP_Console_View)
         self.menuWindow.addSeparator()
         self.menuWindow.addAction(self.action_Zoom_In_View)
         self.menuWindow.addAction(self.action_Zoom_Out_View)
@@ -384,6 +394,9 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.action_Args_To_Current_Function_Debug, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.debug_args)
         QtCore.QObject.connect(self.action_Evaluate_Expression_in_Current_Context, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.debug_eval)
         QtCore.QObject.connect(self.action_Until_Debug, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.debug_until)
+        QtCore.QObject.connect(self.action_Python_Interpreter_View, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.focus_interpreter)
+        QtCore.QObject.connect(self.action_Threaded_Console_View, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.focus_thread_console)
+        QtCore.QObject.connect(self.action_CSP_Console_View, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.focus_csp_console)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -499,5 +512,14 @@ class Ui_MainWindow(object):
         self.action_Args_To_Current_Function_Debug.setToolTip(QtGui.QApplication.translate("MainWindow", "Print the argument list of the current function.", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Evaluate_Expression_in_Current_Context.setText(QtGui.QApplication.translate("MainWindow", "&Evaluate Expression in Current Context", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Evaluate_Expression_in_Current_Context.setToolTip(QtGui.QApplication.translate("MainWindow", "Evaluate the expression in the current context and print its value", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Python_Interpreter_View.setText(QtGui.QApplication.translate("MainWindow", "Python Interpreter", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Python_Interpreter_View.setToolTip(QtGui.QApplication.translate("MainWindow", "Show Python Interpreter", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Python_Interpreter_View.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+3", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Threaded_Console_View.setText(QtGui.QApplication.translate("MainWindow", "Threaded code console", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Threaded_Console_View.setToolTip(QtGui.QApplication.translate("MainWindow", "Show threaded code console", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Threaded_Console_View.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+4", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_CSP_Console_View.setText(QtGui.QApplication.translate("MainWindow", "CSP code console", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_CSP_Console_View.setToolTip(QtGui.QApplication.translate("MainWindow", "Show CSP code console", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_CSP_Console_View.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+5", None, QtGui.QApplication.UnicodeUTF8))
 
 from PyQt4 import Qsci
