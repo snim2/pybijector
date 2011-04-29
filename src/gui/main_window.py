@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from PyQt4 import Qt
 
 from bijector_main import Ui_MainWindow
-from biject_linter import Lint, PyLintIterator, CSPLintIterator
+from lint import Lint, PyLintIterator, CSPLintIterator
 from interpreter import Interpreter
 from styling import StyleMixin
 
