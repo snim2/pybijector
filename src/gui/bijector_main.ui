@@ -68,7 +68,7 @@
         <enum>QTabWidget::North</enum>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>2</number>
        </property>
        <property name="elideMode">
         <enum>Qt::ElideNone</enum>
@@ -101,6 +101,9 @@
          <item>
           <widget class="QTextBrowser" name="threadConsole"/>
          </item>
+         <item>
+          <widget class="QLineEdit" name="threadLineEdit"/>
+         </item>
         </layout>
        </widget>
        <widget class="QWidget" name="tab_5">
@@ -117,6 +120,9 @@
          </item>
          <item>
           <widget class="QTextBrowser" name="cspConsole"/>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="cspLineEdit"/>
          </item>
         </layout>
        </widget>

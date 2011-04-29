@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui/bijector_main.ui'
 #
-# Created: Fri Apr 29 17:24:31 2011
+# Created: Fri Apr 29 17:32:07 2011
 #      by: PyQt4 UI code generator 4.8.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -78,6 +78,9 @@ class Ui_MainWindow(object):
         self.threadConsole = QtGui.QTextBrowser(self.tab_4)
         self.threadConsole.setObjectName(_fromUtf8("threadConsole"))
         self.verticalLayout_5.addWidget(self.threadConsole)
+        self.threadLineEdit = QtGui.QLineEdit(self.tab_4)
+        self.threadLineEdit.setObjectName(_fromUtf8("threadLineEdit"))
+        self.verticalLayout_5.addWidget(self.threadLineEdit)
         self.consoleTabs.addTab(self.tab_4, _fromUtf8(""))
         self.tab_5 = QtGui.QWidget()
         self.tab_5.setObjectName(_fromUtf8("tab_5"))
@@ -90,6 +93,9 @@ class Ui_MainWindow(object):
         self.cspConsole = QtGui.QTextBrowser(self.tab_5)
         self.cspConsole.setObjectName(_fromUtf8("cspConsole"))
         self.verticalLayout_6.addWidget(self.cspConsole)
+        self.cspLineEdit = QtGui.QLineEdit(self.tab_5)
+        self.cspLineEdit.setObjectName(_fromUtf8("cspLineEdit"))
+        self.verticalLayout_6.addWidget(self.cspLineEdit)
         self.consoleTabs.addTab(self.tab_5, _fromUtf8(""))
         self.gridLayout.addWidget(self.splitter_2, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -341,7 +347,7 @@ class Ui_MainWindow(object):
         self.debugToolBar.addAction(self.action_Clear_All_Breakpoints_Run)
 
         self.retranslateUi(MainWindow)
-        self.consoleTabs.setCurrentIndex(0)
+        self.consoleTabs.setCurrentIndex(2)
         QtCore.QObject.connect(self.action_Open_File, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.load_file)
         QtCore.QObject.connect(self.action_New_File, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.new_file)
         QtCore.QObject.connect(self.action_About_Help, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.about)

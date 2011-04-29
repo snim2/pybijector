@@ -85,7 +85,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         self.setup_editor(self.threadEdit)
         self.setup_editor(self.cspEdit)
         # Set checkable actions.
-        self.action_Debugger_Toolbar_View.setChecked(True)
+        self.action_Debugger_Toolbar_View.setChecked(False)
         self.debug_toolbar_view()
         self.action_Toggle_Console_Window.setChecked(False)
         self.consoleTabs.hide()
@@ -112,8 +112,10 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         self.pylint = Lint(MainWindow.PYLINT, ['-f', 'text', '-r', 'n'],
                            self.threadEdit, PyLintIterator, self.message)
         # Set up interpreters and debuggers.
-        self.csp_interp = Interpreter(MainWindow.PYTHON, self.cspConsole)
-        self.thread_interp = Interpreter(MainWindow.PYTHON, self.threadConsole)
+        self.csp_interp = Interpreter(MainWindow.PYTHON, self.cspConsole,
+                                      line_edit=self.cspLineEdit, prompt='> ')
+        self.thread_interp = Interpreter(MainWindow.PYTHON, self.threadConsole,
+                                         line_edit=self.threadLineEdit, prompt='> ')
         self.python_console = Interpreter(MainWindow.PYTHON, self.pythonConsole,
                                           line_edit=self.pythonLineEdit)
         self.python_console.start_interactive(['-B', '-i', '-u', '-'])

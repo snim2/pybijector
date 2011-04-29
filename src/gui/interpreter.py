@@ -29,10 +29,11 @@ __date__ = 'April 2011'
 
 class Interpreter(Qt.QWidget):
 
-    def __init__(self, interpreter, console, line_edit=None): 
+    def __init__(self, interpreter, console, line_edit=None, prompt=None): 
         Qt.QWidget.__init__(self)
         self.process = Qt.QProcess()
         self.interpreter = interpreter
+        self.prompt = prompt
         # Input / output
         self.line_edit = line_edit
         self.console = console
@@ -109,7 +110,10 @@ class Interpreter(Qt.QWidget):
         Ensure it is displayed on the visible console.
         """
         code = self.line_edit.text()
-        self.append(code + '\n')
+        if self.prompt:
+            self.append(self.prompt + code + '\n')
+        else:
+            self.append(code + '\n')
         self.write(code)
         self.line_edit.clear()
         return
