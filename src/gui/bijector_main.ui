@@ -206,16 +206,13 @@
     </property>
     <addaction name="action_Run_Threaded_Code_Run"/>
     <addaction name="action_Run_CSP_Code_Run"/>
-    <addaction name="separator"/>
-    <addaction name="action_Clear_All_Breakpoints_Run"/>
-    <addaction name="separator"/>
-    <addaction name="action_Debug_Threaded_Code_Run"/>
-    <addaction name="action_Debug_CSP_Code_Run"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
      <string>&amp;View</string>
     </property>
+    <addaction name="action_Debugger_Toolbar_View"/>
+    <addaction name="separator"/>
     <addaction name="action_Threaded_Code_Editor"/>
     <addaction name="action_Python_CSP_Code_Editor"/>
     <addaction name="separator"/>
@@ -235,12 +232,34 @@
     <addaction name="separator"/>
     <addaction name="action_Goto_Line_Search"/>
    </widget>
+   <widget class="QMenu" name="menuDebug">
+    <property name="title">
+     <string>&amp;Debug</string>
+    </property>
+    <addaction name="action_Debug_Threaded_Code_Run"/>
+    <addaction name="action_Debug_CSP_Code_Run"/>
+    <addaction name="separator"/>
+    <addaction name="action_Clear_All_Breakpoints_Run"/>
+    <addaction name="separator"/>
+    <addaction name="action_Print_Stacktrace_Debug"/>
+    <addaction name="separator"/>
+    <addaction name="action_Step_Debug"/>
+    <addaction name="action_Next_Debug"/>
+    <addaction name="action_Until_Debug"/>
+    <addaction name="action_Return_Debug"/>
+    <addaction name="action_Continue_Debug"/>
+    <addaction name="action_Jump_Debug"/>
+    <addaction name="separator"/>
+    <addaction name="action_Args_To_Current_Function_Debug"/>
+    <addaction name="action_Evaluate_Expression_in_Current_Context"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menu_Edit"/>
    <addaction name="menuSearch"/>
    <addaction name="menuSource"/>
    <addaction name="menuWindow"/>
    <addaction name="menu_Run"/>
+   <addaction name="menuDebug"/>
    <addaction name="menuBijector"/>
    <addaction name="menu_Help"/>
   </widget>
@@ -267,6 +286,26 @@
    <addaction name="separator"/>
    <addaction name="action_Run_Threaded_Code_Run"/>
    <addaction name="action_Run_CSP_Code_Run"/>
+  </widget>
+  <widget class="QToolBar" name="debugToolBar">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>true</bool>
+   </attribute>
+   <addaction name="action_Step_Debug"/>
+   <addaction name="action_Next_Debug"/>
+   <addaction name="action_Until_Debug"/>
+   <addaction name="action_Return_Debug"/>
+   <addaction name="action_Continue_Debug"/>
+   <addaction name="separator"/>
+   <addaction name="action_Jump_Debug"/>
+   <addaction name="separator"/>
+   <addaction name="action_Clear_All_Breakpoints_Run"/>
   </widget>
   <action name="action_Open_File">
    <property name="text">
@@ -578,6 +617,97 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+-</string>
+   </property>
+  </action>
+  <action name="action_Set_Breakpoint_Debug">
+   <property name="text">
+    <string>Set &amp;Breakpoint</string>
+   </property>
+   <property name="toolTip">
+    <string>Set breakpoint on a given line</string>
+   </property>
+  </action>
+  <action name="action_Debugger_Toolbar_View">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Debugger Toolbar</string>
+   </property>
+   <property name="toolTip">
+    <string>Show / hide debugger toolbar</string>
+   </property>
+  </action>
+  <action name="action_Print_Stacktrace_Debug">
+   <property name="text">
+    <string>Print Stacktrace</string>
+   </property>
+   <property name="toolTip">
+    <string>Print a stacktrace with the current frame at the bottom</string>
+   </property>
+  </action>
+  <action name="action_Step_Debug">
+   <property name="text">
+    <string>&amp;Step</string>
+   </property>
+   <property name="toolTip">
+    <string>Execute the current line and stop at the first possible occasion</string>
+   </property>
+  </action>
+  <action name="action_Next_Debug">
+   <property name="text">
+    <string>&amp;Next</string>
+   </property>
+   <property name="toolTip">
+    <string>Continue execution until the next line in the current function is reached or it returns.</string>
+   </property>
+  </action>
+  <action name="action_Until_Debug">
+   <property name="text">
+    <string>&amp;Until</string>
+   </property>
+   <property name="toolTip">
+    <string>Continue execution until the line with the line number greater than the current one is reached or when returning from current frame</string>
+   </property>
+  </action>
+  <action name="action_Return_Debug">
+   <property name="text">
+    <string>&amp;Return</string>
+   </property>
+   <property name="toolTip">
+    <string>Continue execution until the current function returns</string>
+   </property>
+  </action>
+  <action name="action_Continue_Debug">
+   <property name="text">
+    <string>&amp;Continue</string>
+   </property>
+   <property name="toolTip">
+    <string>Continue execution, only stop when a breakpoint is encountered.</string>
+   </property>
+  </action>
+  <action name="action_Jump_Debug">
+   <property name="text">
+    <string>&amp;Jump</string>
+   </property>
+   <property name="toolTip">
+    <string>Set the next line that will be executed. Only available in the bottom-most frame.</string>
+   </property>
+  </action>
+  <action name="action_Args_To_Current_Function_Debug">
+   <property name="text">
+    <string>Print &amp;Args To Current Function</string>
+   </property>
+   <property name="toolTip">
+    <string>Print the argument list of the current function.</string>
+   </property>
+  </action>
+  <action name="action_Evaluate_Expression_in_Current_Context">
+   <property name="text">
+    <string>&amp;Evaluate Expression in Current Context</string>
+   </property>
+   <property name="toolTip">
+    <string>Evaluate the expression in the current context and print its value</string>
    </property>
   </action>
  </widget>
@@ -1246,6 +1376,182 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>action_Debugger_Toolbar_View</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>debug_toolbar_view()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>462</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_Set_Breakpoint_Debug</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_breakpoint()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>462</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_Print_Stacktrace_Debug</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>print_stacktrace()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>462</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_Step_Debug</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>debug_step()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>462</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_Next_Debug</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>debug_next()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>462</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_Return_Debug</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>debug_return()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>462</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_Continue_Debug</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>debug_continue()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>462</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_Jump_Debug</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>debug_jump()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>462</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_Args_To_Current_Function_Debug</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>debug_args()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>462</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_Evaluate_Expression_in_Current_Context</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>debug_eval()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>462</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_Until_Debug</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>debug_until()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>462</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>load_file()</slot>
@@ -1291,5 +1597,16 @@
   <slot>zoomOut()</slot>
   <slot>autoCompleteFromAll()</slot>
   <slot>enter_python_string()</slot>
+  <slot>debug_toolbar_view()</slot>
+  <slot>set_breakpoint()</slot>
+  <slot>print_stacktrace()</slot>
+  <slot>debug_step()</slot>
+  <slot>debug_next()</slot>
+  <slot>debug_until()</slot>
+  <slot>debug_return()</slot>
+  <slot>debug_continue()</slot>
+  <slot>debug_jump()</slot>
+  <slot>debug_args()</slot>
+  <slot>debug_eval()</slot>
  </slots>
 </ui>

@@ -85,6 +85,8 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         self.setup_editor(self.threadEdit)
         self.setup_editor(self.cspEdit)
         # Set checkable actions.
+        self.action_Debugger_Toolbar_View.setChecked(True)
+        self.debug_toolbar_view()
         self.action_Toggle_Console_Window.setChecked(False)
         self.consoleTabs.hide()
         self.action_Folding_Mode_Source.setChecked(True)
@@ -444,6 +446,10 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         self.thread_interp.start(self.filename, [])
         return
 
+    #
+    # Debug menu.
+    #
+    
     def get_breakpoints(self, editor=None):
         if editor is None:
             editor = self.get_editor()
@@ -470,6 +476,46 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         breakpoints = self.get_breakpoints(self.threadEdit)
         print breakpoints
         return
+
+    def set_breakpoint(self):
+        # WRITEME
+        return
+
+    def print_stacktrace(self):
+        # WRITEME
+        return
+
+    def debug_step(self):
+        # WRITEME
+        return
+    
+    def debug_next(self):
+        # WRITEME
+        return
+    
+    def debug_return(self):
+        # WRITEME
+        return
+    
+    def debug_continue(self):
+        # WRITEME
+        return
+    
+    def debug_jump(self):
+        # WRITEME
+        return
+    
+    def debug_args(self):
+        # WRITEME
+        return
+    
+    def debug_eval(self):
+        # WRITEME
+        return
+
+    def debug_until(self):
+        # WRITEME
+        return
     
     #
     # Biject menu actions.
@@ -486,9 +532,16 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         return
 
     #
-    # Window menu actions.
+    # View menu actions.
     #
 
+    def debug_toolbar_view(self):
+        if self.action_Debugger_Toolbar_View.isChecked():
+            self.debugToolBar.show()
+        else:
+            self.debugToolBar.hide()
+        return
+    
     def toggle_console(self):
         if self.action_Toggle_Console_Window.isChecked():
             self.consoleTabs.show()
