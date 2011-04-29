@@ -184,13 +184,6 @@
     <addaction name="separator"/>
     <addaction name="action_Select_All_Edit"/>
    </widget>
-   <widget class="QMenu" name="menuBijector">
-    <property name="title">
-     <string>&amp;Bijector</string>
-    </property>
-    <addaction name="action_Convert_to_CSP_Bijector"/>
-    <addaction name="action_Convert_to_Threads_Bijector"/>
-   </widget>
    <widget class="QMenu" name="menuSource">
     <property name="title">
      <string>&amp;Source</string>
@@ -270,7 +263,6 @@
    <addaction name="menuWindow"/>
    <addaction name="menu_Run"/>
    <addaction name="menuDebug"/>
-   <addaction name="menuBijector"/>
    <addaction name="menu_Help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -421,16 +413,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+A</string>
-   </property>
-  </action>
-  <action name="action_Convert_to_CSP_Bijector">
-   <property name="text">
-    <string>Convert to &amp;CSP</string>
-   </property>
-  </action>
-  <action name="action_Convert_to_Threads_Bijector">
-   <property name="text">
-    <string>Convert to &amp;Threads</string>
    </property>
   </action>
   <action name="action_Folding_Mode_Source">
@@ -893,38 +875,6 @@
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
    <slot>save_as_file()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>399</x>
-     <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>action_Convert_to_CSP_Bijector</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>to_csp()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>399</x>
-     <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>action_Convert_to_Threads_Bijector</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>to_threads()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>

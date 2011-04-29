@@ -83,9 +83,6 @@ class StyleMixin(object):
         self.action_Jump_Debug.setIcon(Qt.QIcon.fromTheme('go-jump'))
         self.action_Args_To_Current_Function_Debug.setIcon(Qt.QIcon.fromTheme(''))
         self.action_Evaluate_Expression_in_Current_Context.setIcon(Qt.QIcon.fromTheme(''))
-        # Bijector menu.
-        self.action_Convert_to_CSP_Bijector.setIcon(Qt.QIcon.fromTheme('go-first'))
-        self.action_Convert_to_Threads_Bijector.setIcon(Qt.QIcon.fromTheme('go-last'))
         # Help menu.
         self.action_About_Help.setIcon(Qt.QIcon.fromTheme('help-about'))
         return

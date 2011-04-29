@@ -532,20 +532,6 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         return
     
     #
-    # Biject menu actions.
-    #
-    
-    def to_csp(self):
-        # WRITEME
-        print 'to_csp'
-        return
-
-    def to_threads(self):
-        # WRITEME
-        print 'to_threads'
-        return
-
-    #
     # View menu actions.
     #
 
@@ -611,6 +597,20 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
 Please see the python-csp tutorial for more details:
 http://code.google.com/p/python-csp/wiki/Tutorial
 """ % self.app_name)
+
+    #
+    # Biject actions.
+    #
+    
+    def to_csp(self):
+        # WRITEME
+        print 'to_csp'
+        return
+
+    def to_threads(self):
+        # WRITEME
+        print 'to_threads'
+        return
 
     #
     # Slots without menu signals.

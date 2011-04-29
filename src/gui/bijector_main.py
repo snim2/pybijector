@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui/bijector_main.ui'
 #
-# Created: Fri Apr 29 18:06:27 2011
+# Created: Fri Apr 29 18:09:27 2011
 #      by: PyQt4 UI code generator 4.8.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -111,8 +111,6 @@ class Ui_MainWindow(object):
         self.menu_Help.setObjectName(_fromUtf8("menu_Help"))
         self.menu_Edit = QtGui.QMenu(self.menubar)
         self.menu_Edit.setObjectName(_fromUtf8("menu_Edit"))
-        self.menuBijector = QtGui.QMenu(self.menubar)
-        self.menuBijector.setObjectName(_fromUtf8("menuBijector"))
         self.menuSource = QtGui.QMenu(self.menubar)
         self.menuSource.setObjectName(_fromUtf8("menuSource"))
         self.menu_Run = QtGui.QMenu(self.menubar)
@@ -162,10 +160,6 @@ class Ui_MainWindow(object):
         self.action_Paste_Edit.setObjectName(_fromUtf8("action_Paste_Edit"))
         self.action_Select_All_Edit = QtGui.QAction(MainWindow)
         self.action_Select_All_Edit.setObjectName(_fromUtf8("action_Select_All_Edit"))
-        self.action_Convert_to_CSP_Bijector = QtGui.QAction(MainWindow)
-        self.action_Convert_to_CSP_Bijector.setObjectName(_fromUtf8("action_Convert_to_CSP_Bijector"))
-        self.action_Convert_to_Threads_Bijector = QtGui.QAction(MainWindow)
-        self.action_Convert_to_Threads_Bijector.setObjectName(_fromUtf8("action_Convert_to_Threads_Bijector"))
         self.action_Folding_Mode_Source = QtGui.QAction(MainWindow)
         self.action_Folding_Mode_Source.setCheckable(True)
         self.action_Folding_Mode_Source.setObjectName(_fromUtf8("action_Folding_Mode_Source"))
@@ -266,8 +260,6 @@ class Ui_MainWindow(object):
         self.menu_Edit.addAction(self.action_Paste_Edit)
         self.menu_Edit.addSeparator()
         self.menu_Edit.addAction(self.action_Select_All_Edit)
-        self.menuBijector.addAction(self.action_Convert_to_CSP_Bijector)
-        self.menuBijector.addAction(self.action_Convert_to_Threads_Bijector)
         self.menuSource.addAction(self.action_Folding_Mode_Source)
         self.menuSource.addAction(self.action_Fold_All_Source)
         self.menuSource.addAction(self.action_Remove_All_Folds_Source)
@@ -322,7 +314,6 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuWindow.menuAction())
         self.menubar.addAction(self.menu_Run.menuAction())
         self.menubar.addAction(self.menuDebug.menuAction())
-        self.menubar.addAction(self.menuBijector.menuAction())
         self.menubar.addAction(self.menu_Help.menuAction())
         self.toolBar.addAction(self.action_Open_File)
         self.toolBar.addAction(self.action_New_File)
@@ -356,8 +347,6 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.action_Quit, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.close)
         QtCore.QObject.connect(self.action_Save_File, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.save_file)
         QtCore.QObject.connect(self.action_Save_File_As, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.save_as_file)
-        QtCore.QObject.connect(self.action_Convert_to_CSP_Bijector, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.to_csp)
-        QtCore.QObject.connect(self.action_Convert_to_Threads_Bijector, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.to_threads)
         QtCore.QObject.connect(self.action_Copy_Edit, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.copy)
         QtCore.QObject.connect(self.action_Cut_Edit, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.cut)
         QtCore.QObject.connect(self.action_Paste_Edit, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.paste)
@@ -426,7 +415,6 @@ class Ui_MainWindow(object):
         self.menu_Recent_Files.setTitle(QtGui.QApplication.translate("MainWindow", "&Recent Files", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Help.setTitle(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Edit.setTitle(QtGui.QApplication.translate("MainWindow", "&Edit", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuBijector.setTitle(QtGui.QApplication.translate("MainWindow", "&Bijector", None, QtGui.QApplication.UnicodeUTF8))
         self.menuSource.setTitle(QtGui.QApplication.translate("MainWindow", "&Source", None, QtGui.QApplication.UnicodeUTF8))
         self.menu_Run.setTitle(QtGui.QApplication.translate("MainWindow", "&Run", None, QtGui.QApplication.UnicodeUTF8))
         self.menuWindow.setTitle(QtGui.QApplication.translate("MainWindow", "&View", None, QtGui.QApplication.UnicodeUTF8))
@@ -460,8 +448,6 @@ class Ui_MainWindow(object):
         self.action_Paste_Edit.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+V", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Select_All_Edit.setText(QtGui.QApplication.translate("MainWindow", "Select &All", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Select_All_Edit.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+A", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_Convert_to_CSP_Bijector.setText(QtGui.QApplication.translate("MainWindow", "Convert to &CSP", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_Convert_to_Threads_Bijector.setText(QtGui.QApplication.translate("MainWindow", "Convert to &Threads", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Folding_Mode_Source.setText(QtGui.QApplication.translate("MainWindow", "Folding Mode", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Folding_Mode_Source.setToolTip(QtGui.QApplication.translate("MainWindow", "Allow indented blocks to be folded and unfolded", None, QtGui.QApplication.UnicodeUTF8))
         self.action_Fold_All_Source.setText(QtGui.QApplication.translate("MainWindow", "Fold All", None, QtGui.QApplication.UnicodeUTF8))
