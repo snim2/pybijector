@@ -22,57 +22,95 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from PyQt4 import Qt
 
 __author__ = 'Sarah Mount <s.mount@wlv.ac.uk>'
+__credits__ = 'http://diotavelli.net/PyQtWiki/Capturing_Output_from_a_Process'
 __date__ = 'April 2011'
 
 # pylint: disable=W0511
 
-
 class Interpreter(Qt.QWidget):
-    # Based loosely on the PyQt wiki page:
-    # http://diotavelli.net/PyQtWiki/Capturing_Output_from_a_Process
-    # Edited by: Mathias Helminger, DavidBoddie, 193, cm-62
-    def __init__(self, interpreter): 
+
+    def __init__(self, interpreter, console, line_edit=None): 
         Qt.QWidget.__init__(self)
-        self.interpreter = interpreter
         self.process = Qt.QProcess()
-        # Merge standard in and out.
+        self.interpreter = interpreter
+        # Input / output
+        self.line_edit = line_edit
+        self.console = console
         self.process.setReadChannel(Qt.QProcess.StandardOutput)
+        # Merge STDOUT and STDERR.
         self.process.setProcessChannelMode(Qt.QProcess.MergedChannels)
+        # Store text from STDOUT.
         self.output = None
-        self.errors = None
+        # Start cursor in right place. Important when the running
+        # process start with some output (e.g. interpreter REPLs).
+        self.console.moveCursor(Qt.QTextCursor.End)
+        # Signals and slots
         self.connect(self.process, Qt.SIGNAL("finished(int)"), self.finished)
-        self.connect(self.process, Qt.SIGNAL("readyReadStandardError()"), self.readErrors)
         self.connect(self.process, Qt.SIGNAL("readyReadStandardOutput()"), self.readOutput)
+        if self.line_edit is not None:
+            self.connect(self.line_edit, Qt.SIGNAL('returnPressed()'), self.input)
+        self.connect(self, Qt.SIGNAL('results()'), self.append)
         return
         
     def start(self, filename, args):
+        """Start the running process asynchronously.
+        """
         interp_args = args + [filename]
         self.process.start(self.interpreter, interp_args)
         return
 
     def start_interactive(self, args):
+        """Start a long running interactive process which we expect to
+        take input from the user.
+        """
         self.process.start(self.interpreter, args)
         self.process.waitForStarted(-1)
         return
 
     def finished(self, exit_status):
+        """SLOT called when the process has finished.
+        """
         self.readOutput()
         return
 
     def readOutput(self):
+        """Called when STDOUT is ready to be read.
+        """
         self.output = self.process.readAllStandardOutput()
-        self.emit(Qt.SIGNAL("results(QString)"), Qt.QString(self.interpreter))
+        self.emit(Qt.SIGNAL("results()"))
         return
     
-    def readErrors(self):
-        self.errors = self.process.readAllStandardError()
-        return
-
     def write(self, data):
+        """Write data to the STDIN of a running process.
+        """
         self.process.write(str(data) + '\n')
         self.process.waitForBytesWritten(-1)
         return
 
     def terminate(self):
+        """Kill this process.
+        """
         self.process.kill()
         return
+
+    def append(self, text=None):
+        """Append text to the visible console.
+        """
+        self.console.moveCursor(Qt.QTextCursor.End)
+        if text is None:
+            self.console.insertPlainText(str(self.output))
+        else:
+            self.console.insertPlainText(str(text))
+        self.console.ensureCursorVisible()
+        return
+
+    def input(self):
+        """Take input form the line editor and send it to the running process.
+        Ensure it is displayed on the visible console.
+        """
+        code = self.line_edit.text()
+        self.append(code + '\n')
+        self.write(code)
+        self.line_edit.clear()
+        return
+

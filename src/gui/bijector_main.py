@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui/bijector_main.ui'
 #
-# Created: Fri Apr 29 01:27:51 2011
+# Created: Fri Apr 29 11:32:01 2011
 #      by: PyQt4 UI code generator 4.8.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -319,7 +319,6 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.action_Clear_Menu_Files, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.clear_recent_files)
         QtCore.QObject.connect(self.action_Zoom_In_View, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.zoomIn)
         QtCore.QObject.connect(self.action_Zoom_Out_View, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.zoomOut)
-        QtCore.QObject.connect(self.pythonLineEdit, QtCore.SIGNAL(_fromUtf8("returnPressed()")), MainWindow.enter_python_string)
         QtCore.QObject.connect(self.buttonBox_2, QtCore.SIGNAL(_fromUtf8("clicked(QAbstractButton*)")), self.threadConsole.clear)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("clicked(QAbstractButton*)")), self.cspConsole.clear)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)

@@ -1215,34 +1215,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>pythonLineEdit</sender>
-   <signal>returnPressed()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>enter_python_string()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>765</x>
-     <y>539</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>922</x>
-     <y>540</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>buttonBox_2</sender>
    <signal>clicked(QAbstractButton*)</signal>
    <receiver>threadConsole</receiver>
    <slot>clear()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>73</x>
-     <y>321</y>
+     <x>84</x>
+     <y>317</y>
     </hint>
     <hint type="destinationlabel">
-     <x>96</x>
-     <y>366</y>
+     <x>101</x>
+     <y>326</y>
     </hint>
    </hints>
   </connection>
@@ -1253,12 +1237,12 @@
    <slot>clear()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>66</x>
-     <y>332</y>
+     <x>77</x>
+     <y>317</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>362</y>
+     <x>101</x>
+     <y>326</y>
     </hint>
    </hints>
   </connection>

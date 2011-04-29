@@ -129,18 +129,10 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
                      self.lint_results)
 
         # Set up interpreters and debuggers.
-        self.csp_interp = Interpreter(MainWindow.PYTHON)
-        self.connect(self.csp_interp,
-                     Qt.SIGNAL('results(QString)'),
-                     self.parse_csp_run)
-        self.thread_interp = Interpreter(MainWindow.PYTHON)
-        self.connect(self.thread_interp,
-                     Qt.SIGNAL('results(QString)'),
-                     self.parse_thread_run)
-        self.python_console = Interpreter(MainWindow.PYTHON)
-        self.connect(self.python_console,
-                     Qt.SIGNAL('results(QString)'),
-                     self.python_console_output)
+        self.csp_interp = Interpreter(MainWindow.PYTHON, self.cspConsole)
+        self.thread_interp = Interpreter(MainWindow.PYTHON, self.threadConsole)
+        self.python_console = Interpreter(MainWindow.PYTHON, self.pythonConsole,
+                                          line_edit=self.pythonLineEdit)
         self.python_console.start_interactive(['-B', '-i', '-u', '-'])
         self.pythonConsole.moveCursor(Qt.QTextCursor.End)
         # Start with focus on the left hand pane.
@@ -555,37 +547,6 @@ http://code.google.com/p/python-csp/wiki/Tutorial
 """ % self.app_name)
 
     #
-    # Interactive Python interpreter.
-    #
-    #
-
-    def append_python_console(self, text):
-        """Append text to the visible Python console.
-        """
-        self.pythonConsole.moveCursor(Qt.QTextCursor.End)
-        self.pythonConsole.insertPlainText(text + '\n')
-        self.pythonConsole.ensureCursorVisible()
-        return
-
-    def enter_python_string(self):
-        """SLOT called when editing finished in the pythonLineEdit widget.
-        The line of text is passed to a running Python interpreter.
-        """
-        code = self.pythonLineEdit.text()
-        self.append_python_console(code)
-        self.python_console.write(code)
-        self.pythonLineEdit.clear()
-        return
-
-    def python_console_output(self):
-        """Called when the interactive Python interpreter has results to display.
-        """
-        output = str(self.python_console.output)
-        if output:
-            self.append_python_console(output)
-        return
-    
-    #
     # Slots without menu signals.
     #
 
@@ -686,22 +647,6 @@ http://code.google.com/p/python-csp/wiki/Tutorial
 
         return
 
-    def parse_csp_run(self, word):
-        output = str(self.csp_interp.output)
-        if not output:
-            self.csp_interp.readErrors()
-            output = str(self.csp_interp.errors)
-        self.cspConsole.append(output)
-        return
-
-    def parse_thread_run(self, word):
-        output = str(self.thread_interp.output)
-        if not output:
-            self.thread_interp.readErrors()
-            output = str(self.thread_interp.errors)
-        self.threadConsole.append(output)
-        return
-    
     def closeEvent(self, event):
         if self.threadEdit.isModified() or self.cspEdit.isModified():
             quit_msg = 'Would you like to save your changes before leaving ' + self.app_name + '?'
