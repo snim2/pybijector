@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>926</width>
-    <height>604</height>
+    <height>638</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1114,7 +1114,7 @@
    <sender>action_Debug_CSP_Code_Run</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>debug_csp()</slot>
+   <slot>run_debug_csp()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -1130,7 +1130,7 @@
    <sender>action_Debug_Threaded_Code_Run</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>debug_threads()</slot>
+   <slot>run_debug_threads()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -1162,7 +1162,7 @@
    <sender>action_Clear_All_Breakpoints_Run</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>remove_all_breakpoints()</slot>
+   <slot>debug_remove_all_breakpoints()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -1386,7 +1386,7 @@
    <sender>action_Debugger_Toolbar_View</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>debug_toolbar_view()</slot>
+   <slot>toggle_toolbar_view()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -1402,7 +1402,7 @@
    <sender>action_Set_Breakpoint_Debug</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_breakpoint()</slot>
+   <slot>debug_set_breakpoint()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -1418,7 +1418,7 @@
    <sender>action_Print_Stacktrace_Debug</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>print_stacktrace()</slot>
+   <slot>debug_print_stacktrace()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -1664,10 +1664,10 @@
   <slot>toggle_whitespace_visible()</slot>
   <slot>run_csp()</slot>
   <slot>run_threads()</slot>
-  <slot>debug_csp()</slot>
-  <slot>debug_threads()</slot>
+  <slot>run_debug_csp()</slot>
+  <slot>run_debug_threads()</slot>
   <slot>clearFolds()</slot>
-  <slot>remove_all_breakpoints()</slot>
+  <slot>debug_remove_all_breakpoints()</slot>
   <slot>toggle_console()</slot>
   <slot>focus_csp()</slot>
   <slot>focus_threads()</slot>
@@ -1683,9 +1683,9 @@
   <slot>zoomOut()</slot>
   <slot>autoCompleteFromAll()</slot>
   <slot>enter_python_string()</slot>
-  <slot>debug_toolbar_view()</slot>
-  <slot>set_breakpoint()</slot>
-  <slot>print_stacktrace()</slot>
+  <slot>toggle_toolbar_view()</slot>
+  <slot>debug_set_breakpoint()</slot>
+  <slot>debug_print_stacktrace()</slot>
   <slot>debug_step()</slot>
   <slot>debug_next()</slot>
   <slot>debug_until()</slot>

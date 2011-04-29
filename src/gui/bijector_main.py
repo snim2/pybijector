@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui/bijector_main.ui'
 #
-# Created: Fri Apr 29 18:09:27 2011
+# Created: Fri Apr 29 18:24:56 2011
 #      by: PyQt4 UI code generator 4.8.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -17,7 +17,7 @@ except AttributeError:
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
-        MainWindow.resize(926, 604)
+        MainWindow.resize(926, 638)
         MainWindow.setDockOptions(QtGui.QMainWindow.AllowTabbedDocks|QtGui.QMainWindow.AnimatedDocks|QtGui.QMainWindow.ForceTabbedDocks|QtGui.QMainWindow.VerticalTabs)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
@@ -361,10 +361,10 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.action_Whitespace_Visible_Source, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.toggle_whitespace_visible)
         QtCore.QObject.connect(self.action_Run_CSP_Code_Run, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.run_csp)
         QtCore.QObject.connect(self.action_Run_Threaded_Code_Run, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.run_threads)
-        QtCore.QObject.connect(self.action_Debug_CSP_Code_Run, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.debug_csp)
-        QtCore.QObject.connect(self.action_Debug_Threaded_Code_Run, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.debug_threads)
+        QtCore.QObject.connect(self.action_Debug_CSP_Code_Run, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.run_debug_csp)
+        QtCore.QObject.connect(self.action_Debug_Threaded_Code_Run, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.run_debug_threads)
         QtCore.QObject.connect(self.action_Remove_All_Folds_Source, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.clearFolds)
-        QtCore.QObject.connect(self.action_Clear_All_Breakpoints_Run, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.remove_all_breakpoints)
+        QtCore.QObject.connect(self.action_Clear_All_Breakpoints_Run, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.debug_remove_all_breakpoints)
         QtCore.QObject.connect(self.action_Toggle_Console_Window, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.toggle_console)
         QtCore.QObject.connect(self.action_Threaded_Code_Editor, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.focus_threads)
         QtCore.QObject.connect(self.action_Python_CSP_Code_Editor, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.focus_csp)
@@ -378,9 +378,9 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.action_Zoom_Out_View, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.zoomOut)
         QtCore.QObject.connect(self.buttonBox_2, QtCore.SIGNAL(_fromUtf8("clicked(QAbstractButton*)")), self.threadConsole.clear)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("clicked(QAbstractButton*)")), self.cspConsole.clear)
-        QtCore.QObject.connect(self.action_Debugger_Toolbar_View, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.debug_toolbar_view)
-        QtCore.QObject.connect(self.action_Set_Breakpoint_Debug, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.set_breakpoint)
-        QtCore.QObject.connect(self.action_Print_Stacktrace_Debug, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.print_stacktrace)
+        QtCore.QObject.connect(self.action_Debugger_Toolbar_View, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.toggle_toolbar_view)
+        QtCore.QObject.connect(self.action_Set_Breakpoint_Debug, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.debug_set_breakpoint)
+        QtCore.QObject.connect(self.action_Print_Stacktrace_Debug, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.debug_print_stacktrace)
         QtCore.QObject.connect(self.action_Step_Debug, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.debug_step)
         QtCore.QObject.connect(self.action_Next_Debug, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.debug_next)
         QtCore.QObject.connect(self.action_Return_Debug, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.debug_return)

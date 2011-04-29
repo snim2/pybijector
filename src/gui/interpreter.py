@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Run an external interpreter or debugger, and parse its output.
+Run an external interpreter, and parse its output.
 
 Copyright (C) Sarah Mount, 2011.
 

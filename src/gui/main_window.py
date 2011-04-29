@@ -86,7 +86,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         self.setup_editor(self.cspEdit)
         # Set checkable actions.
         self.action_Debugger_Toolbar_View.setChecked(False)
-        self.debug_toolbar_view()
+        self.toggle_toolbar_view()
         self.action_Toggle_Console_Window.setChecked(False)
         self.consoleTabs.hide()
         self.action_Folding_Mode_Source.setChecked(True)
@@ -475,27 +475,27 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
             bp = temp
         return breakpoints
 
-    def remove_all_breakpoints(self):
+    def debug_remove_all_breakpoints(self):
         self.get_editor().markerDeleteAll(MainWindow.BREAK_MARKER_NUM)
         return
     
-    def debug_csp(self):
+    def run_debug_csp(self):
         # WRITEME
         breakpoints = self.get_breakpoints(self.cspEdit)
         print breakpoints
         return
 
-    def debug_threads(self):
+    def run_debug_threads(self):
         # WRITEME
         breakpoints = self.get_breakpoints(self.threadEdit)
         print breakpoints
         return
 
-    def set_breakpoint(self):
+    def debug_set_breakpoint(self):
         # WRITEME
         return
 
-    def print_stacktrace(self):
+    def debug_print_stacktrace(self):
         # WRITEME
         return
 
@@ -535,7 +535,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     # View menu actions.
     #
 
-    def debug_toolbar_view(self):
+    def toggle_toolbar_view(self):
         if self.action_Debugger_Toolbar_View.isChecked():
             self.debugToolBar.show()
         else:
