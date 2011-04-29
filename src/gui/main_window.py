@@ -73,24 +73,17 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         self.setupUi(self)
         self.setup_styling()
         self.setup_icons()
-
         self.app_name = 'PyBijector'
         self.setWindowTitle(self.app_name)
         self.action_Close_File.setDisabled(True)
         # FIXME: Use Qt resources instead of static filenames.
         self.setWindowIcon(Qt.QIcon('images/pythoncsp-logo.png'))
-
         self.userdir = os.path.expanduser('~')
         self.filename = Qt.QString('')
-        self.searchString = None # Used in search / replace
-        
+        self.searchString = None # Used in search / replace        
         # Setup styling for editor panes.
         self.setup_editor(self.threadEdit)
         self.setup_editor(self.cspEdit)
-        
-        self.cspEdit.setAnnotationDisplay(2)
-        self.threadEdit.setAnnotationDisplay(2)
-        
         # Set checkable actions.
         self.action_Toggle_Console_Window.setChecked(False)
         self.consoleTabs.hide()
@@ -100,27 +93,22 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         self.toggle_whitespace_visible()
         self.action_Word_Wrap_Source.setChecked(True)
         self.toggle_word_wrap()
-        
         # Apply basic syntax highlighting to consoles.
         self.highlight_python = syntax.PythonHighlighter(self.pythonConsole.document())
         self.highlight_thread = syntax.PythonHighlighter(self.threadConsole.document())
         self.highlight_csp = syntax.PythonHighlighter(self.cspConsole.document())
-
         # Populate recent file list.
         self.recent_file_acts = None
         self.update_recent_file_actions()
-        
         # Shortcuts without menu items
         self.connect(Qt.QShortcut(Qt.QKeySequence("Ctrl+Space"), self), 
                      Qt.SIGNAL('activated()'),
                      self.autoCompleteFromAll)
-
         # Set up linting.
-        self.csplint = Lint(MainWindow.CSPLINT, self.cspEdit,
+        self.csplint = Lint(MainWindow.CSPLINT, ['-p'], self.cspEdit,
                             CSPLintIterator, self.message)
-        self.pylint = Lint(MainWindow.PYLINT, self.threadEdit,
-                           PyLintIterator, self.message)
-
+        self.pylint = Lint(MainWindow.PYLINT, ['-f', 'text', '-r', 'n'],
+                           self.threadEdit, PyLintIterator, self.message)
         # Set up interpreters and debuggers.
         self.csp_interp = Interpreter(MainWindow.PYTHON, self.cspConsole)
         self.thread_interp = Interpreter(MainWindow.PYTHON, self.threadConsole)
@@ -170,7 +158,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         files = settings.value('recentFileList')
         if files is None:
             files = [name]
-        else:
+        elif name:
             files.insert(0, name)
             files = list(set(files)) # Remove duplicates.
             del files[MainWindow.MAX_RECENT_FILES:]
@@ -563,7 +551,6 @@ http://code.google.com/p/python-csp/wiki/Tutorial
     def update_recent_file_actions(self):
         settings = Qt.QSettings(self.app_name, self.app_name)
         files = settings.value('recentFileList')
-        
         if files is None:
             return
         
@@ -576,17 +563,13 @@ http://code.google.com/p/python-csp/wiki/Tutorial
                                                         visible=False,
                                                         triggered=self.open_recent_file))
                 self.menu_Recent_Files.addAction(self.recent_file_acts[i])
-
-        
         for i in xrange(numRecentFiles):
             text = "&%d %s" % (i + 1, self.strippedName(files[i]))
             self.recent_file_acts[i].setText(text)
             self.recent_file_acts[i].setData(files[i])
             self.recent_file_acts[i].setVisible(True)
-
         for j in range(numRecentFiles, MainWindow.MAX_RECENT_FILES):
             self.recent_file_acts[j].setVisible(False)
-
         return
 
     def strippedName(self, fullFileName):
@@ -594,9 +577,9 @@ http://code.google.com/p/python-csp/wiki/Tutorial
 
     def run_lint(self, editor):
         if editor == self.cspEdit:
-            self.csplint.start(self.filename, ['-p'])
+            self.csplint.start(self.filename)
         else:
-            self.pylint.start(self.filename, ['-f', 'text', '-r', 'n'])
+            self.pylint.start(self.filename)
         return
 
     def closeEvent(self, event):

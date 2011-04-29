@@ -33,13 +33,15 @@ __date__ = 'April 2011'
 
 class Lint(Qt.QWidget): #, LintStyleMixin):
 
-    def __init__(self, lint, editor, results_iter, message):
+    def __init__(self, lint, args, editor, results_iter, message):
         Qt.QWidget.__init__(self)
         self.lint = lint
+        self.args = args
         self.editor = editor
         self.results_iter = results_iter
         self.message = message # Must be callable.
-        # Set up styling for annotations.
+        # Set up styling for annotations.        
+        self.editor.setAnnotationDisplay(2)
         self.font = Qt.QFont('Courier', 9, Qt.QFont.Normal, True)
         self.info = QsciStyle(-1, 'Hilite style for lint info',
                                Qt.QColor('#222222'), Qt.QColor('#FFFFFF'),
@@ -62,12 +64,12 @@ class Lint(Qt.QWidget): #, LintStyleMixin):
         self.connect(self, Qt.SIGNAL('results()'), self.apply_results)
         return
 
-    def start(self, filename, args):
+    def start(self, filename):
         """Start lint process asynchronously.
         """
         self.output = None
         self.errors = None
-        lint_args = args + [filename]
+        lint_args = self.args + [filename]
         self.clear_all_lint_errors()
         self.process.start(self.lint, lint_args)
         return
