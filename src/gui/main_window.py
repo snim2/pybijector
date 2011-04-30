@@ -227,9 +227,9 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     def new_file(self):
         self.get_editor().clear()
         self.set_filename('')
-        self.message('New file started')
         self.get_editor().setModified(False)
         self.action_Close_File.setDisabled(False)
+        self.message('New file started')
         return
     
     def load_file(self, editor=None, filename=None):
@@ -263,12 +263,14 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         action = self.sender()
         if action:
             self.load_file(filename=action.data())
+        return
 
     def clear_recent_files(self):
         """Clear list of recent files.
         """
         self.settings.set_value('recentFileList', [])
         self.update_recent_file_actions()
+        self.message('Cleared list of recent files.')
         return
     
     def save_file(self, editor=None):
@@ -378,6 +380,9 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         settings_dialog = SettingsDialog(self, self.settings)
         settings_dialog.exec_()
         self.load_settings()
+        msg = 'Please restart %s for your changes to take effect.' % self.app_name
+        self.message('Settings saved.')
+        Qt.QMessageBox.information(self, self.app_name, msg)
         return
 
     def load_settings(self):
@@ -386,6 +391,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         self.pylint_exec  = str(self.settings.get_value('pylint')) or ''
         self.cspdb_exec   = str(self.settings.get_value('cspdb')) or ''
         self.csplint_exec = str(self.settings.get_value('csplint')) or ''
+        self.message('Loaded settings.')
         return
 
     #
@@ -442,12 +448,15 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     def toggle_folding_mode(self):
         if self.action_Folding_Mode_Source.isChecked():
             self.get_editor().setFolding(StyleMixin.FOLDING_ON)
+            self.message('Folding mode on.')
         else:
             self.get_editor().setFolding(StyleMixin.FOLDING_OFF)
+            self.message('Folding mode off.')
         return
 
     def clear_all_folds(self):
         self.get_editor().clearFolds()
+        self.message('All folds cleared.')
         return
 
     def indent_selection(self):
@@ -456,9 +465,11 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
             lineFrom, indexFrom, lineTo, indexTo = self.get_current_selection(editor)
             for line in xrange(lineFrom, lineTo + 1):
                 editor.indent(line)
+            self.message('Selected text indented.')
         else:
             line, index = editor.getCursorPosition()
             editor.indent(line)
+            self.message('Line %d indented.' % line)
         return
 
     def unindent_selection(self):
@@ -467,23 +478,29 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
             lineFrom, indexFrom, lineTo, indexTo = self.get_current_selection(editor)
             for line in xrange(lineFrom, lineTo + 1):
                 editor.unindent(line)
+            self.message('Selected text unindented.')
         else:
             line, index = editor.getCursorPosition()
             editor.unindent(line)
+            self.message('Line %d unindented.' % line)
         return
 
     def toggle_word_wrap(self):
         if self.action_Word_Wrap_Source.isChecked():
             self.get_editor().setWrapMode(1)
+            self.message('Word wrap on.')
         else:
             self.get_editor().setWrapMode(0)
+            self.message('Word wrap off.')
         return
 
     def toggle_whitespace_visible(self):
         if self.action_Whitespace_Visible_Source.isChecked():
             self.get_editor().setWhitespaceVisibility(1)
+            self.message('Whitespace made visible.')
         else:
             self.get_editor().setWhitespaceVisibility(0)
+            self.message('Whitespace made invisible.')
         return
 
     #
@@ -499,6 +516,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
             self.toggle_console()
         self.consoleTabs.setCurrentIndex(2)
         self.csp_interp.start([self.filename])
+        self.message('Running %s.' % self.filename)
         return
 
     def run_threads(self):
@@ -510,6 +528,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
             self.toggle_console()
         self.consoleTabs.setCurrentIndex(1)
         self.thread_interp.start([self.filename])
+        self.message('Running %s.' % self.filename)
         return
 
     def abort_thread_console(self):
@@ -530,6 +549,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
 
     def remove_all_breakpoints(self):
         self.get_editor().markerDeleteAll(MainWindow.BREAK_MARKER_NUM)
+        self.message('Breakpoints removed.')
         return
 
     def get_breakpoints(self, editor=None):
@@ -547,12 +567,14 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         # WRITEME
         breakpoints = self.get_breakpoints(self.cspEdit)
         print breakpoints
+        self.message('Debugging %s.' % self.filename)
         return
 
     def run_debug_threads(self):
         # WRITEME
         breakpoints = self.get_breakpoints(self.threadEdit)
         print breakpoints
+        self.message('Debugging %s.' % self.filename)
         return
 
     def debug_set_breakpoint(self):
@@ -673,11 +695,13 @@ http://code.google.com/p/python-csp/wiki/Tutorial
     def to_csp(self):
         # WRITEME
         print 'to_csp'
+        self.message('Converted %s to CSP code.' % self.filename)
         return
 
     def to_threads(self):
         # WRITEME
         print 'to_threads'
+        self.message('Converted %s to threaded code.' % self.filename)
         return
 
     #
@@ -731,8 +755,9 @@ http://code.google.com/p/python-csp/wiki/Tutorial
             self.pylint.start(['-f', 'text', '-r', 'n',self.filename])
         return
 
-    def save_settings(self):
-        """Save settings between sessions.
+    def clean_up(self):
+        """Called before exiting the application.
+        Save settings, terminate all running processes.
         """
         # Save history stored in line edit widgets.
         self.python_console.save_history()
@@ -741,13 +766,6 @@ http://code.google.com/p/python-csp/wiki/Tutorial
         # Save checkables.
         for check in self.checkables:
             self.settings.set_value(check.objectName(), str(check.isChecked()))
-        return
-
-    def clean_up(self):
-        """Called before exiting the application.
-        Save settings, terminate all running processes.
-        """
-        self.save_settings()
         # Close Python console.
         self.python_console.terminate()
         # Close running user programs.
