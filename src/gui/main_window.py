@@ -29,7 +29,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from PyQt4 import Qt
+from PyQt4 import Qt, QtCore
 
 from basics import uniq
 from bijector_main import Ui_MainWindow
@@ -39,6 +39,7 @@ from interpreter import Interpreter, PdbDebugger
 from lint import Lint, PyLintIterator, CSPLintIterator
 from settings import SettingsManager, SettingsDialog
 from styling import StyleMixin
+
 
 import os
 import syntax # Basic syntax highlighting where QScintilla would be overkill.
@@ -87,7 +88,9 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         self.filename = Qt.QString('')
         # Search / replace
         self.find_dialog = None
-        self.searchString = None 
+        self.searchString = None
+        # Printer
+        self.printer = Qt.QPrinter()
         # Setup styling for editor panes.
         self.setup_editor(self.threadEdit)
         self.setup_editor(self.cspEdit)
@@ -318,32 +321,35 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         Margin = 10
         pageNo = 1
 
-        if self.printer.setup(self):
-            self.message('Printing...')
+        print_dialog = Qt.QPrintDialog(self.printer, self)
+        if (print_dialog.exec_() != Qt.QDialog.Accepted):
+            self.message('Printing aborted.')
+            return
+        self.message('Printing %s' % self.filename)
 
-            p = Qt.QPainter()
-            p.begin(self.printer)
-            p.setFont(self.get_editor().font())
-            yPos = 0
-            fm = p.fontMetrics()
+        p = Qt.QPainter()
+        p.begin(self.printer)
+        p.setFont(self.get_editor().font())
+        yPos = 0
+        fm = p.fontMetrics()
 
-            width = self.printer.metric(Qt.QPaintDevice.PdmWidth)
-            height = self.printer.metric(Qt.QPaintDevice.PdmHeight)
-            
-            for i in range(self.get_editor().numLines):
-                if Margin + yPos > height - Margin:
-                    pageNo = pageNo + 1
-                    self.message('Printing (page %d)...' % (pageNo))
-                    self.printer.newPage()
-                    yPos = 0
+        width = self.printer.metric(Qt.QPaintDevice.PdmWidth)
+        height = self.printer.metric(Qt.QPaintDevice.PdmHeight)
 
-#                p.drawText(Margin, Margin + yPos, width, fm.lineSpacing(), Qt.TextFlag.ExpandTabs | Qt.TextFlag.WordWrap, self.get_editor().textLine(i))
-                yPos = yPos + fm.lineSpacing()
+        for i in xrange(self.get_editor().lines()):
+            if Margin + yPos > height - Margin:
+                pageNo = pageNo + 1
+                self.message('Printing (page %d)...' % (pageNo))
+                self.printer.newPage()
+                yPos = 0
 
-            p.end()
-            self.message('Printing completed')
-        else:
-            self.message('Printing aborted')
+            p.drawText(Margin, Margin + yPos, width, fm.lineSpacing(),
+                       QtCore.Qt.TextExpandTabs | QtCore.Qt.TextWordWrap,
+                       self.get_editor().text(i))
+            yPos = yPos + fm.lineSpacing()
+
+        p.end()
+        self.message('Printing completed')
         return
  
     def close_file(self):
