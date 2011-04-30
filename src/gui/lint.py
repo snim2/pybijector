@@ -51,7 +51,7 @@ class Lint(AbstractProcess): #, LintStyleMixin):
                                   Qt.QColor('#222222'), Qt.QColor('#FFFF44'),
                                   self.font)
         self.error = QsciStyle(-1, 'Hilite style for lint errors',
-                                Qt.QColor('#222222'), Qt.QColor('#EE0000'),
+                                Qt.QColor('#FFFFFF'), Qt.QColor('#EE0000'),
                                 self.font)
         self.severities = {'I':self.info, 'C':self.info, 
                            'W':self.warning, 'R':self.warning,
