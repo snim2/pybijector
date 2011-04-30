@@ -34,6 +34,7 @@ from PyQt4 import Qt
 from basics import uniq
 from bijector_main import Ui_MainWindow
 from debugger import PdbDebugger
+from find_replace import FindReplaceDialog
 from history import HistoryEventFilter
 from interpreter import Interpreter
 from lint import Lint, PyLintIterator, CSPLintIterator
@@ -50,7 +51,6 @@ __date__ = 'April 2011'
 # pylint: disable=W0613
 # pylint: disable=W0511
 
-# TODO: Replace.
 # TODO: Interactive Python debugger.
 # TODO: Interactive python-csp debugger.
 # FIXME: get_editor() sometimes returns wrong editor.
@@ -89,7 +89,9 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         self.setWindowIcon(Qt.QIcon('images/pythoncsp-logo.png'))
         self.userdir = os.path.expanduser('~')
         self.filename = Qt.QString('')
-        self.searchString = None # Used in search / replace        
+        # Search / replace
+        self.find_dialog = None
+        self.searchString = None 
         # Setup styling for editor panes.
         self.setup_editor(self.threadEdit)
         self.setup_editor(self.cspEdit)
@@ -377,14 +379,19 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         if self.searchString is None:
             self.find()
         elif not self.get_editor().findNext():
-            Qt.QMessageBox.information(self, self.app_name,
-                                       ('No more occurances of ' +
-                                        self.searchString +
-                                        ' found in document.'))
+            msg = 'No more occurances of %s in document.' % self.searchString
+            Qt.QMessageBox.information(self, self.app_name, msg)
         return
     
     def replace(self):
-        # WRITEME
+        """Start the find / replace dialog modelessly.
+        """
+        if self.find_dialog is None:
+            self.find_dialog = FindReplaceDialog(self, editor=self.get_editor())
+        else:
+            self.find_dialog.editor = self.get_editor()
+        self.find_dialog.show()
+        self.find_dialog.activateWindow()
         return
     
     def goto_line(self):
@@ -677,7 +684,7 @@ http://code.google.com/p/python-csp/wiki/Tutorial
                                                         triggered=self.open_recent_file))
                 self.menu_Recent_Files.addAction(self.recent_file_acts[i])
         for i in xrange(numRecentFiles):
-            text = "&%d %s" % (i + 1, self.strippedName(files[i]))
+            text = "&%d %s" % (i + 1, self.stripped_name(files[i]))
             self.recent_file_acts[i].setText(text)
             self.recent_file_acts[i].setData(files[i])
             self.recent_file_acts[i].setVisible(True)
@@ -685,7 +692,7 @@ http://code.google.com/p/python-csp/wiki/Tutorial
             self.recent_file_acts[j].setVisible(False)
         return
 
-    def strippedName(self, fullFileName):
+    def stripped_name(self, fullFileName):
         return Qt.QFileInfo(fullFileName).fileName()
 
     def run_lint(self, editor):

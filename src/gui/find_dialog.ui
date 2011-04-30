@@ -20,12 +20,12 @@
       <string>&amp;Search for:</string>
      </property>
      <property name="buddy">
-      <cstring>lineEdit</cstring>
+      <cstring>searchEdit</cstring>
      </property>
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QLineEdit" name="lineEdit"/>
+    <widget class="QLineEdit" name="searchEdit"/>
    </item>
    <item row="1" column="0">
     <widget class="QLabel" name="label_2">
@@ -33,43 +33,43 @@
       <string>Replace &amp;with:</string>
      </property>
      <property name="buddy">
-      <cstring>lineEdit_2</cstring>
+      <cstring>replaceEdit</cstring>
      </property>
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QLineEdit" name="lineEdit_2"/>
+    <widget class="QLineEdit" name="replaceEdit"/>
    </item>
    <item row="2" column="0">
-    <widget class="QCheckBox" name="checkBox">
+    <widget class="QCheckBox" name="matchCaseCheck">
      <property name="text">
       <string>Match case</string>
      </property>
     </widget>
    </item>
    <item row="3" column="0" colspan="2">
-    <widget class="QCheckBox" name="checkBox_2">
+    <widget class="QCheckBox" name="entireWordsCheck">
      <property name="text">
       <string>Match entire words only</string>
      </property>
     </widget>
    </item>
    <item row="4" column="0" colspan="2">
-    <widget class="QCheckBox" name="checkBox_3">
+    <widget class="QCheckBox" name="backwardsCheck">
      <property name="text">
       <string>Search backwards</string>
      </property>
     </widget>
    </item>
    <item row="5" column="0">
-    <widget class="QCheckBox" name="checkBox_4">
+    <widget class="QCheckBox" name="wrapCheck">
      <property name="text">
       <string>Wrap around</string>
      </property>
     </widget>
    </item>
    <item row="6" column="0" colspan="2">
-    <widget class="QCheckBox" name="checkBox_5">
+    <widget class="QCheckBox" name="regexCheck">
      <property name="text">
       <string>Search string is a regular expression</string>
      </property>
@@ -82,30 +82,30 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QPushButton" name="pushButton_4">
+       <widget class="QPushButton" name="findButton">
         <property name="text">
-         <string>&amp;Close</string>
+         <string>&amp;Find</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_3">
-        <property name="text">
-         <string>Replace &amp;All</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="replaceButton">
         <property name="text">
          <string>&amp;Replace</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="replaceAllButton">
         <property name="text">
-         <string>&amp;Find</string>
+         <string>Replace &amp;All</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="closeButton">
+        <property name="text">
+         <string>&amp;Close</string>
         </property>
        </widget>
       </item>
@@ -115,22 +115,19 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>lineEdit</tabstop>
-  <tabstop>lineEdit_2</tabstop>
-  <tabstop>checkBox</tabstop>
-  <tabstop>checkBox_2</tabstop>
-  <tabstop>checkBox_3</tabstop>
-  <tabstop>checkBox_4</tabstop>
-  <tabstop>checkBox_5</tabstop>
-  <tabstop>pushButton_4</tabstop>
-  <tabstop>pushButton_3</tabstop>
-  <tabstop>pushButton_2</tabstop>
-  <tabstop>pushButton</tabstop>
+  <tabstop>searchEdit</tabstop>
+  <tabstop>replaceEdit</tabstop>
+  <tabstop>matchCaseCheck</tabstop>
+  <tabstop>entireWordsCheck</tabstop>
+  <tabstop>backwardsCheck</tabstop>
+  <tabstop>wrapCheck</tabstop>
+  <tabstop>regexCheck</tabstop>
+  <tabstop>replaceButton</tabstop>
  </tabstops>
  <resources/>
  <connections>
   <connection>
-   <sender>pushButton</sender>
+   <sender>findButton</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
    <slot>find()</slot>
@@ -146,7 +143,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_2</sender>
+   <sender>replaceButton</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
    <slot>replace()</slot>
@@ -162,7 +159,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_3</sender>
+   <sender>replaceAllButton</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
    <slot>replace_all()</slot>
@@ -178,7 +175,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_4</sender>
+   <sender>closeButton</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
    <slot>reject()</slot>

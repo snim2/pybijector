@@ -23,13 +23,55 @@ from PyQt4 import Qt
 
 from find_dialog import Ui_Dialog
 
-class FindReplace(Qt.QDialog, Ui_Dialog):
+__author__ = 'Sarah Mount <s.mount@wlv.ac.uk>'
+__credits__ = 'http://diotavelli.net/PyQtWiki/Capturing_Output_from_a_Process'
+__date__ = 'April 2011'
 
-    def __init__(self, parent=None, editor=None):
-        Qt.QDialog.__init__(self)
+# pylint: disable=W0231
+
+
+class FindReplaceDialog(Qt.QDialog, Ui_Dialog):
+
+    def __init__(self, parent, editor=None):
+        Qt.QDialog.__init__(self, parent)
         self.setupUi(self)
-        self.parent = parent
-        self.editor = editor
+        self.search_string = None
+        if editor is None:
+            self.editor = parent.threadEdit
+        else:
+            self.editor = editor
         return
 
+    def find(self):
+        self.search_string = self.searchEdit.text()
+        self.editor.findFirst(self.search_string,
+                              self.regexCheck.isChecked(),
+                              self.matchCaseCheck.isChecked(),
+                              self.entireWordsCheck.isChecked(),
+                              self.wrapCheck.isChecked(),
+                              not self.backwardsCheck.isChecked(),
+                              -1, # Start from current line.
+                              -1, # Start from current cursor index.
+                              True) # Make found text visible.
+        return
 
+    def replace(self):
+        if not self.search_string == self.searchEdit.text():
+            self.find()
+        self.editor.replace(self.replaceEdit.text())
+        return
+
+    def replace_all(self):
+        if not self.search_string == self.searchEdit.text():
+            self.find()
+        replace_string = self.replaceEdit.text()
+        while True:
+            self.editor.replace(replace_string)
+            if not self.editor.findNext():
+                break
+        return
+
+    def reject(self):
+        self.search_string = None
+        self.hide()
+        return
