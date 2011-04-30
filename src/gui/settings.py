@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyQt4 import Qt
 
+from settings_dialog import Ui_SettingsDialog
+
 __author__ = 'Sarah Mount <s.mount@wlv.ac.uk>'
 __date__ = 'April 2011'
 
@@ -41,4 +43,27 @@ class SettingsManager(object):
 
     def set_value(self, name, value):
         self.settings.setValue(name, value)
+        return
+
+
+class SettingsDialog(Qt.QDialog, Ui_SettingsDialog):
+
+    def __init__(self, parent, settings):
+        Qt.QDialog.__init__(self, parent)
+        self.settings = settings
+        self.setupUi(self)
+        self.pythonEdit.setText(self.settings.get_value('python'))
+        self.pdbEdit.setText(self.settings.get_value('pdb'))
+        self.pylintEdit.setText(self.settings.get_value('pylint'))
+        self.cspdbEdit.setText(self.settings.get_value('cspdb'))
+        self.csplintEdit.setText(self.settings.get_value('csplint'))
+        return
+
+    def accept(self):
+        self.settings.set_value('python',  self.pythonEdit.text())
+        self.settings.set_value('pdb',     self.pdbEdit.text())
+        self.settings.set_value('pylint',  self.pylintEdit.text())
+        self.settings.set_value('cspdb',   self.cspdbEdit.text())
+        self.settings.set_value('csplint', self.csplintEdit.text())
+        Qt.QDialog.accept(self)
         return

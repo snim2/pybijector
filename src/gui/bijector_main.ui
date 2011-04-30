@@ -183,6 +183,8 @@
     <addaction name="action_Paste_Edit"/>
     <addaction name="separator"/>
     <addaction name="action_Select_All_Edit"/>
+    <addaction name="separator"/>
+    <addaction name="action_Settings"/>
    </widget>
    <widget class="QMenu" name="menuSource">
     <property name="title">
@@ -733,6 +735,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+5</string>
+   </property>
+  </action>
+  <action name="action_Settings">
+   <property name="text">
+    <string>&amp;Settings</string>
    </property>
   </action>
  </widget>
@@ -1638,6 +1645,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>action_Settings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>settings_dialog()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>462</x>
+     <y>318</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>load_file()</slot>
@@ -1699,5 +1722,6 @@
   <slot>focus_csp_console()</slot>
   <slot>abort_thread_console()</slot>
   <slot>abort_csp_console()</slot>
+  <slot>settings_dialog()</slot>
  </slots>
 </ui>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui/bijector_main.ui'
 #
-# Created: Fri Apr 29 18:30:45 2011
+# Created: Sat Apr 30 21:38:29 2011
 #      by: PyQt4 UI code generator 4.8.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -239,6 +239,8 @@ class Ui_MainWindow(object):
         self.action_Threaded_Console_View.setObjectName(_fromUtf8("action_Threaded_Console_View"))
         self.action_CSP_Console_View = QtGui.QAction(MainWindow)
         self.action_CSP_Console_View.setObjectName(_fromUtf8("action_CSP_Console_View"))
+        self.action_Settings = QtGui.QAction(MainWindow)
+        self.action_Settings.setObjectName(_fromUtf8("action_Settings"))
         self.menu_Recent_Files.addSeparator()
         self.menu_Recent_Files.addAction(self.action_Clear_Menu_Files)
         self.menuFile.addAction(self.action_New_File)
@@ -260,6 +262,8 @@ class Ui_MainWindow(object):
         self.menu_Edit.addAction(self.action_Paste_Edit)
         self.menu_Edit.addSeparator()
         self.menu_Edit.addAction(self.action_Select_All_Edit)
+        self.menu_Edit.addSeparator()
+        self.menu_Edit.addAction(self.action_Settings)
         self.menuSource.addAction(self.action_Folding_Mode_Source)
         self.menuSource.addAction(self.action_Fold_All_Source)
         self.menuSource.addAction(self.action_Remove_All_Folds_Source)
@@ -394,6 +398,7 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.action_CSP_Console_View, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.focus_csp_console)
         QtCore.QObject.connect(self.buttonBox_2, QtCore.SIGNAL(_fromUtf8("clicked(QAbstractButton*)")), MainWindow.abort_thread_console)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("clicked(QAbstractButton*)")), MainWindow.abort_csp_console)
+        QtCore.QObject.connect(self.action_Settings, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.settings_dialog)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.threadEdit, self.cspEdit)
         MainWindow.setTabOrder(self.cspEdit, self.consoleTabs)
@@ -525,5 +530,6 @@ class Ui_MainWindow(object):
         self.action_CSP_Console_View.setText(QtGui.QApplication.translate("MainWindow", "CSP code console", None, QtGui.QApplication.UnicodeUTF8))
         self.action_CSP_Console_View.setToolTip(QtGui.QApplication.translate("MainWindow", "Show CSP code console", None, QtGui.QApplication.UnicodeUTF8))
         self.action_CSP_Console_View.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+5", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_Settings.setText(QtGui.QApplication.translate("MainWindow", "&Settings", None, QtGui.QApplication.UnicodeUTF8))
 
 from PyQt4 import Qsci

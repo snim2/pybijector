@@ -37,7 +37,7 @@ from find_replace import FindReplaceDialog
 from history import HistoryEventFilter
 from interpreter import Interpreter, PdbDebugger
 from lint import Lint, PyLintIterator, CSPLintIterator
-from settings import SettingsManager
+from settings import SettingsManager, SettingsDialog
 from styling import StyleMixin
 
 import os
@@ -46,6 +46,7 @@ import syntax # Basic syntax highlighting where QScintilla would be overkill.
 __author__ = 'Sarah Mount <s.mount@wlv.ac.uk>'
 __date__ = 'April 2011'
 
+# pylint: disable=W0201
 # pylint: disable=W0231
 # pylint: disable=W0613
 # pylint: disable=W0511
@@ -59,12 +60,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     """Creates the Main Window of the application using the main 
     window design in the gui.bijector_main module.
     """
-    MAX_RECENT_FILES = 10
-    CSPLINT = '/usr/local/bin/csplint'
-    PYLINT = '/usr/bin/pylint'
-    PYTHON = '/usr/bin/python'
-    PDB = '/usr/bin/pdb'
-    CSPDB = '/usr/local/bin/cspdb'
+    MAX_RECENT_FILES = 20
     
     # Editor slots contains names of SLOTs from the QScintilla editor
     # widgets. We take SIGNALs from the MainWindow object and pass
@@ -81,6 +77,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         self.app_name = 'PyBijector'
         # Manage settings.
         self.settings = SettingsManager(__author__, self.app_name)
+        self.load_settings()
         # Set up GUI.
         self.setWindowTitle(self.app_name)
         self.action_Close_File.setDisabled(True)
@@ -118,35 +115,35 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
                      Qt.SIGNAL('activated()'),
                      self.autoCompleteFromAll)
         # Set up linting.
-        self.csplint = Lint(MainWindow.CSPLINT, [], self.cspEdit,
+        self.csplint = Lint(self.csplint_exec, [], self.cspEdit,
                             CSPLintIterator, self.message)
-        self.pylint  = Lint(MainWindow.PYLINT, [],
+        self.pylint  = Lint(self.pylint_exec, [],
                             self.threadEdit, PyLintIterator, self.message)
         # Set up interpreters and history managers for their input widgets.
         self.history_python = HistoryEventFilter(self.pythonLineEdit, self.settings)
         self.history_thread = HistoryEventFilter(self.threadLineEdit, self.settings)
         self.history_csp    = HistoryEventFilter(self.cspLineEdit, self.settings)
-        self.python_console = Interpreter(MainWindow.PYTHON, ['-B', '-i', '-u', '-'],
+        self.python_console = Interpreter(self.python_exec, ['-B', '-i', '-u', '-'],
                                           console=self.pythonConsole,
                                           line_edit=self.pythonLineEdit,
                                           settings=self.settings,
                                           history=self.history_python)
-        self.thread_interp  = Interpreter(MainWindow.PYTHON, [],
+        self.thread_interp  = Interpreter(self.python_exec, [],
                                           console=self.threadConsole,
                                           line_edit=self.threadLineEdit,
                                           prompt='> ', settings=self.settings,
                                           history=self.history_thread)
-        self.csp_interp     = Interpreter(MainWindow.PYTHON, [],
+        self.csp_interp     = Interpreter(self.python_exec, [],
                                           console=self.cspConsole,
                                           line_edit=self.cspLineEdit,
                                           prompt='> ', settings=self.settings,
                                           history=self.history_csp)
         self.python_console.start_interactive()
         # Set up debuggers.
-        self.pdb_thread = PdbDebugger(MainWindow.PDB, [],
+        self.pdb_thread = PdbDebugger(self.pdb_exec, [],
                                       console=self.threadConsole,
                                       line_edit=self.threadLineEdit)
-        self.pdb_csp    = PdbDebugger(MainWindow.PDB, [],
+        self.pdb_csp    = PdbDebugger(self.pdb_exec, [],
                                       console=self.cspConsole,
                                       line_edit=self.cspLineEdit)
         # Start with focus on the left hand pane.
@@ -365,6 +362,24 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         self.setWindowTitle(self.app_name)
         self.action_Close_File.setDisabled(True)
         self.message('Closed %s.' % old_filename)
+        return
+
+    #
+    # Edit menu actions.
+    #
+
+    def settings_dialog(self):
+        settings_dialog = SettingsDialog(self, self.settings)
+        settings_dialog.exec_()
+        self.load_settings()
+        return
+
+    def load_settings(self):
+        self.python_exec  = str(self.settings.get_value('python')) or ''
+        self.pdb_exec     = str(self.settings.get_value('pdb')) or ''
+        self.pylint_exec  = str(self.settings.get_value('pylint')) or ''
+        self.cspdb_exec   = str(self.settings.get_value('cspdb')) or ''
+        self.csplint_exec = str(self.settings.get_value('csplint')) or ''
         return
 
     #
