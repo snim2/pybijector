@@ -33,10 +33,9 @@ from PyQt4 import Qt
 
 from basics import uniq
 from bijector_main import Ui_MainWindow
-from debugger import PdbDebugger
 from find_replace import FindReplaceDialog
 from history import HistoryEventFilter
-from interpreter import Interpreter
+from interpreter import Interpreter, PdbDebugger
 from lint import Lint, PyLintIterator, CSPLintIterator
 from settings import SettingsManager
 from styling import StyleMixin
@@ -95,7 +94,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         # Setup styling for editor panes.
         self.setup_editor(self.threadEdit)
         self.setup_editor(self.cspEdit)
-        # Set checkable actions.
+        # Set checkable actions from settings.
         self.checkables = {
             self.action_Debugger_Toolbar_View : self.toggle_toolbar_view,
             self.action_Toggle_Console_Window : self.toggle_console,
@@ -103,7 +102,6 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
             self.action_Whitespace_Visible_Source : self.toggle_whitespace_visible,
             self.action_Word_Wrap_Source : self.toggle_word_wrap
             }
-        # Load settings and set checkables accordingly.
         for checkable in self.checkables:
             is_checked = self.settings.get_value(checkable.objectName())
             checkable.setChecked(is_checked == 'True')
@@ -120,31 +118,36 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
                      Qt.SIGNAL('activated()'),
                      self.autoCompleteFromAll)
         # Set up linting.
-        self.csplint = Lint(MainWindow.CSPLINT, ['-p'], self.cspEdit,
+        self.csplint = Lint(MainWindow.CSPLINT, [], self.cspEdit,
                             CSPLintIterator, self.message)
-        self.pylint  = Lint(MainWindow.PYLINT, ['-f', 'text', '-r', 'n'],
+        self.pylint  = Lint(MainWindow.PYLINT, [],
                             self.threadEdit, PyLintIterator, self.message)
         # Set up interpreters and history managers for their input widgets.
         self.history_python = HistoryEventFilter(self.pythonLineEdit, self.settings)
-        self.python_console = Interpreter(MainWindow.PYTHON, self.pythonConsole,
+        self.history_thread = HistoryEventFilter(self.threadLineEdit, self.settings)
+        self.history_csp    = HistoryEventFilter(self.cspLineEdit, self.settings)
+        self.python_console = Interpreter(MainWindow.PYTHON, ['-B', '-i', '-u', '-'],
+                                          console=self.pythonConsole,
                                           line_edit=self.pythonLineEdit,
                                           settings=self.settings,
                                           history=self.history_python)
-        self.python_console.start_interactive(['-B', '-i', '-u', '-'])
-        self.history_thread = HistoryEventFilter(self.threadLineEdit, self.settings)
-        self.thread_interp = Interpreter(MainWindow.PYTHON, self.threadConsole,
-                                         line_edit=self.threadLineEdit,
-                                         prompt='> ', settings=self.settings,
-                                         history=self.history_thread)
-        self.history_csp = HistoryEventFilter(self.cspLineEdit, self.settings)
-        self.csp_interp = Interpreter(MainWindow.PYTHON, self.cspConsole,
-                                      line_edit=self.cspLineEdit,
-                                      prompt='> ', settings=self.settings,
-                                      history=self.history_csp)
+        self.thread_interp  = Interpreter(MainWindow.PYTHON, [],
+                                          console=self.threadConsole,
+                                          line_edit=self.threadLineEdit,
+                                          prompt='> ', settings=self.settings,
+                                          history=self.history_thread)
+        self.csp_interp     = Interpreter(MainWindow.PYTHON, [],
+                                          console=self.cspConsole,
+                                          line_edit=self.cspLineEdit,
+                                          prompt='> ', settings=self.settings,
+                                          history=self.history_csp)
+        self.python_console.start_interactive()
         # Set up debuggers.
-        self.pdb_thread = PdbDebugger(MainWindow.PDB, self.threadConsole,
+        self.pdb_thread = PdbDebugger(MainWindow.PDB, [],
+                                      console=self.threadConsole,
                                       line_edit=self.threadLineEdit)
-        self.pdb_csp    = PdbDebugger(MainWindow.PDB, self.cspConsole,
+        self.pdb_csp    = PdbDebugger(MainWindow.PDB, [],
+                                      console=self.cspConsole,
                                       line_edit=self.cspLineEdit)
         # Start with focus on the left hand pane.
         self.threadEdit.setFocus()
@@ -171,8 +174,13 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
             return self.threadEdit
 
     def get_active_debugger(self):
-        # WRITEME
-        return
+        """Return the currently active debugger, or None if none is running.
+        """
+        if self.pdb_thread.is_running():
+            return self.pdb_thread
+        elif self.pdb_csp.is_running():
+            return self.pdb_csp
+        return None
     
     def message(self, msg):
         """Show a message on the status bar for two seconds.
@@ -469,7 +477,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
             self.action_Toggle_Console_Window.setChecked(True)
             self.toggle_console()
         self.consoleTabs.setCurrentIndex(2)
-        self.csp_interp.start(self.filename, [])
+        self.csp_interp.start([self.filename])
         return
 
     def run_threads(self):
@@ -480,7 +488,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
             self.action_Toggle_Console_Window.setChecked(True)
             self.toggle_console()
         self.consoleTabs.setCurrentIndex(1)
-        self.thread_interp.start(self.filename, [])
+        self.thread_interp.start([self.filename])
         return
 
     def abort_thread_console(self):
@@ -697,9 +705,9 @@ http://code.google.com/p/python-csp/wiki/Tutorial
 
     def run_lint(self, editor):
         if editor == self.cspEdit:
-            self.csplint.start(self.filename)
+            self.csplint.start(['-p', self.filename])
         else:
-            self.pylint.start(self.filename)
+            self.pylint.start(['-f', 'text', '-r', 'n',self.filename])
         return
 
     def save_settings(self):
@@ -713,7 +721,26 @@ http://code.google.com/p/python-csp/wiki/Tutorial
         for check in self.checkables:
             self.settings.set_value(check.objectName(), str(check.isChecked()))
         return
-    
+
+    def clean_up(self):
+        """Called before exiting the application.
+        Save settings, terminate all running processes.
+        """
+        self.save_settings()
+        # Close Python console.
+        self.python_console.terminate()
+        # Close running user programs.
+        self.thread_interp.terminate()
+        self.thread_interp.terminate()        
+        # Close debuggers.
+        self.pdb_thread.terminate()
+        self.pdb_csp.terminate()
+        # Close lints.
+        self.pylint.terminate()
+        self.csplint.terminate()        
+        return
+
+
     def closeEvent(self, event):
         if self.threadEdit.isModified() or self.cspEdit.isModified():
             quit_msg = 'Would you like to save your changes before leaving ' + self.app_name + '?'
@@ -722,17 +749,14 @@ http://code.google.com/p/python-csp/wiki/Tutorial
 
             if reply == Qt.QMessageBox.Save:
                 self.save_file()
-                self.python_console.terminate()
-                self.save_settings()
+                self.clean_up()
                 event.accept()
             elif reply == Qt.QMessageBox.Discard:
-                self.python_console.terminate()
-                self.save_settings()
+                self.clean_up()
                 event.accept()
             elif reply == Qt.QMessageBox.Cancel:
                 event.ignore()
         else:
-            self.python_console.terminate()
-            self.save_settings()
+            self.clean_up()
             event.accept()
         return

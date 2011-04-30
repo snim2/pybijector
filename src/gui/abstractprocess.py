@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Run an external debugger, and parse its output.
+Run an external program.
 
 Copyright (C) Sarah Mount, 2011.
 
@@ -25,73 +25,95 @@ __author__ = 'Sarah Mount <s.mount@wlv.ac.uk>'
 __credits__ = 'http://diotavelli.net/PyQtWiki/Capturing_Output_from_a_Process'
 __date__ = 'April 2011'
 
-# pylint: disable=W0511
 
-class Debugger(Qt.QWidget):
+class AbstractProcess(Qt.QWidget):
 
-    def __init__(self, debugger, console, line_edit=None, prompt=None): 
+    def __init__(self, program, args, console=None, line_edit=None, settings=None, history=None, prompt=None):
         Qt.QWidget.__init__(self)
-        self.process = Qt.QProcess()
-        self.debugger = debugger
-        self.prompt = prompt
-        # Input / output
-        self.line_edit = line_edit
+        self.program = program
+        self.args = args
         self.console = console
-        self.process.setReadChannel(Qt.QProcess.StandardOutput)
-        # Merge STDOUT and STDERR.
-        self.process.setProcessChannelMode(Qt.QProcess.MergedChannels)
-        # Store text from STDOUT.
+        self.line_edit = line_edit
+        self.settings = settings
+        self.history = history
+        self.prompt = prompt
         self.output = None
-        # Start cursor in right place. Important when the running
-        # process start with some output (e.g. debugger REPLs).
-        self.console.moveCursor(Qt.QTextCursor.End)
-        # Signals and slots
+        self.errors = None
+        # Set up external process.
+        self.process = Qt.QProcess()
+        # External I/O
+        self.process.setReadChannel(Qt.QProcess.StandardOutput)
+        self.process.setProcessChannelMode(Qt.QProcess.MergedChannels)
+        # Signals / slots.
         self.connect(self.process, Qt.SIGNAL("finished(int)"), self.finished)
-        self.connect(self.process, Qt.SIGNAL("readyReadStandardOutput()"), self.readOutput)
+        self.connect(self.process, Qt.SIGNAL("readyReadStderr()"), self.readErrors)
         if self.line_edit is not None:
             self.connect(self.line_edit, Qt.SIGNAL('returnPressed()'), self.input)
-        self.connect(self, Qt.SIGNAL('results()'), self.append)
-        return
-        
-    def start(self, filename, args):
-        """Start the running process asynchronously.
-        """
-        interp_args = args + [filename]
-        self.process.start(self.debugger, interp_args)
         return
 
-    def start_interactive(self, args):
+    def save_history(self):
+        if self.history:
+            self.history.save_history()
+        return
+    
+    def start(self, args=None):
+        """Start external program  asynchronously.
+        """
+        self.output = None
+        self.errors = None
+        if args is None:
+            args = self.args
+        self.process.start(self.program, args)
+        return
+
+    def start_interactive(self, args=None):
         """Start a long running interactive process which we expect to
         take input from the user.
         """
-        self.process.start(self.debugger, args)
+        if args is None:
+            args = self.args
+        self.process.start(self.program, args)
         self.process.waitForStarted(-1)
+        return
+    
+    def is_running(self):
+        """Return True if the current process is running and False otherwise.
+        """
+        return self.process.state() == Qt.QProcess.Running 
+
+    def terminate(self):
+        """Kill this process.
+        """
+        if self.is_running():
+            self.process.kill()
+            self.process.waitForFinished()
         return
 
     def finished(self, exit_status):
-        """SLOT called when the process has finished.
+        """SLOT called on completion of lint process.
         """
         self.readOutput()
         return
 
     def readOutput(self):
-        """Called when STDOUT is ready to be read.
+        """Read STDOUT of lint process.
         """
         self.output = self.process.readAllStandardOutput()
         self.emit(Qt.SIGNAL("results()"))
         return
     
+    def readErrors(self):
+        """Read STDERR of lint process.
+        Only used for debugging.
+        """
+        self.errors = self.process.readLineStderr()
+        return
+
     def write(self, data):
         """Write data to the STDIN of a running process.
         """
         self.process.write(str(data) + '\n')
         self.process.waitForBytesWritten(-1)
-        return
-
-    def terminate(self):
-        """Kill this process.
-        """
-        self.process.kill()
         return
 
     def append(self, text=None):
@@ -109,64 +131,15 @@ class Debugger(Qt.QWidget):
         """Take input form the line editor and send it to the running process.
         Ensure it is displayed on the visible console.
         """
+        if self.line_edit is None:
+            return
         code = self.line_edit.text()
         if self.prompt:
             self.append(self.prompt + code + '\n')
         else:
             self.append(code + '\n')
         self.write(code)
+        self.history.insert(code)
         self.line_edit.clear()
         return
 
-    def debug_remove_all_breakpoints(self):
-#        self.get_editor().markerDeleteAll(MainWindow.BREAK_MARKER_NUM)
-        return
-    
-    def debug_set_breakpoint(self):
-        # WRITEME
-        return
-
-    def debug_print_stacktrace(self):
-        # WRITEME
-        return
-
-    def debug_step(self):
-        # WRITEME
-        return
-    
-    def debug_next(self):
-        # WRITEME
-        return
-    
-    def debug_return(self):
-        # WRITEME
-        return
-    
-    def debug_continue(self):
-        # WRITEME
-        return
-    
-    def debug_jump(self):
-        # WRITEME
-        return
-    
-    def debug_args(self):
-        # WRITEME
-        return
-    
-    def debug_eval(self):
-        # WRITEME
-        return
-
-    def debug_until(self):
-        # WRITEME
-        return
-
-class PdbDebugger(Debugger):
-
-    def __init__(self, debugger, console, line_edit=None, prompt=None):
-        Debugger.__init__(self, debugger, console, line_edit=None, prompt=None)
-        return
-
-    def __str__(self):
-        return 'PDB interface'

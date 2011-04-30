@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from PyQt4.Qsci import QsciStyle
+from abstractprocess import AbstractProcess
 
 from PyQt4 import Qt
 
@@ -31,17 +32,17 @@ __credits__ = 'http://diotavelli.net/PyQtWiki/Capturing_Output_from_a_Process'
 __date__ = 'April 2011'
 
 
-class Lint(Qt.QWidget): #, LintStyleMixin):
+class Lint(AbstractProcess): #, LintStyleMixin):
 
     def __init__(self, lint, args, editor, results_iter, message):
-        Qt.QWidget.__init__(self)
-        self.lint = lint
-        self.args = args
-        self.editor = editor
+        AbstractProcess.__init__(self, lint, args, editor)
+        # self.lint = lint
+        # self.args = args
+        # self.editor = editor
         self.results_iter = results_iter
         self.message = message # Must be callable.
         # Set up styling for annotations.        
-        self.editor.setAnnotationDisplay(2)
+        self.console.setAnnotationDisplay(2)
         self.font = Qt.QFont('Courier', 9, Qt.QFont.Normal, True)
         self.info = QsciStyle(-1, 'Hilite style for lint info',
                                Qt.QColor('#222222'), Qt.QColor('#FFFFFF'),
@@ -55,43 +56,7 @@ class Lint(Qt.QWidget): #, LintStyleMixin):
         self.severities = {'I':self.info, 'C':self.info, 
                            'W':self.warning, 'R':self.warning,
                            'E':self.error, 'F':self.error}
-        # Set up external process and its signals / slots.
-        self.process = Qt.QProcess()
-        self.output = None
-        self.errors = None
-        self.connect(self.process, Qt.SIGNAL("finished(int)"), self.finished)
-        self.connect(self.process, Qt.SIGNAL("readyReadStderr()"), self.readErrors)
         self.connect(self, Qt.SIGNAL('results()'), self.apply_results)
-        return
-
-    def start(self, filename):
-        """Start lint process asynchronously.
-        """
-        self.output = None
-        self.errors = None
-        lint_args = self.args + [filename]
-        self.clear_all_lint_errors()
-        self.process.start(self.lint, lint_args)
-        return
-
-    def finished(self, exit_status):
-        """SLOT called on completion of lint process.
-        """
-        self.readOutput()
-        return
-
-    def readOutput(self):
-        """Read STDOUT of lint process.
-        """
-        self.output = self.process.readAllStandardOutput()
-        self.emit(Qt.SIGNAL("results()"))
-        return
-    
-    def readErrors(self):
-        """Read STDERR of lint process.
-        Only used for debugging.
-        """
-        self.errors = self.process.readLineStderr()
         return
 
     def lint_error(self, msg):
@@ -103,8 +68,8 @@ class Lint(Qt.QWidget): #, LintStyleMixin):
             hilite = self.severities[msg.severity]
         else:
             hilite = self.severities['W']
-        if self.editor:
-            self.editor.annotate(int(msg.linenum) - 1, msg.message, hilite)
+        if self.console:
+            self.console.annotate(int(msg.linenum) - 1, msg.message, hilite)
         else:
             self.get_editor().annotate(int(msg.linenum) - 1, msg.message, hilite)
         return
@@ -112,17 +77,17 @@ class Lint(Qt.QWidget): #, LintStyleMixin):
     def clear_all_lint_errors(self):
         """Remove all annotations from the editor.
         """
-        self.editor.clearAnnotations(-1)
+        self.console.clearAnnotations(-1)
         return
 
     def clear_lint_error(self, linenum):
         """Remove an annotation from a given line in the editor.
         """
-        self.editor.clearAnnotations(linenum - 1)
+        self.console.clearAnnotations(linenum - 1)
         return
 
     def apply_results(self):
-        name = os.path.basename(self.lint)
+        name = os.path.basename(self.program)
         for message in self.results_iter(str(self.output)):
             self.lint_error(message)
             self.message('Code annotated with %s output.' % name)
