@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyQt4 import Qt
 
+from basics import uniq
 from bijector_main import Ui_MainWindow
 from debugger import PdbDebugger
 from history import HistoryEventFilter
@@ -53,6 +54,7 @@ __date__ = 'April 2011'
 # TODO: Interactive Python debugger.
 # TODO: Interactive python-csp debugger.
 # FIXME: get_editor() sometimes returns wrong editor.
+
 
 class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     """Creates the Main Window of the application using the main 
@@ -139,9 +141,9 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
                                       history=self.history_csp)
         # Set up debuggers.
         self.pdb_thread = PdbDebugger(MainWindow.PDB, self.threadConsole,
-                                      line_edit=self.threadLineEdit, prompt=None)
+                                      line_edit=self.threadLineEdit)
         self.pdb_csp    = PdbDebugger(MainWindow.PDB, self.cspConsole,
-                                      line_edit=self.cspLineEdit, prompt=None)
+                                      line_edit=self.cspLineEdit)
         # Start with focus on the left hand pane.
         self.threadEdit.setFocus()
         return
@@ -189,7 +191,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
             files = [name]
         elif name:
             files.insert(0, name)
-            files = list(set(files)) # Remove duplicates.
+            files = uniq(files) # Remove duplicates.
             del files[MainWindow.MAX_RECENT_FILES:]
 
         self.settings.set_value('recentFileList', files)
@@ -694,7 +696,7 @@ http://code.google.com/p/python-csp/wiki/Tutorial
         return
 
     def save_settings(self):
-        """
+        """Save settings between sessions.
         """
         # Save history stored in line edit widgets.
         self.python_console.save_history()
@@ -702,7 +704,7 @@ http://code.google.com/p/python-csp/wiki/Tutorial
         self.csp_interp.save_history()
         # Save checkables.
         for check in self.checkables:
-            self.settings.set_value(check.objectName(),str(check.isChecked()))
+            self.settings.set_value(check.objectName(), str(check.isChecked()))
         return
     
     def closeEvent(self, event):

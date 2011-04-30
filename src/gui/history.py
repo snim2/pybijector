@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyQt4 import Qt, QtCore
 
+from basics import uniq
+
 __author__ = 'Sarah Mount <s.mount@wlv.ac.uk>'
 __credits__ = 'http://diotavelli.net/PyQtWiki/Capturing_Output_from_a_Process'
 __date__ = 'April 2011'
@@ -66,16 +68,15 @@ class HistoryEventFilter(Qt.QObject):
         elif not isinstance(history, Qt.QStringList):
             return [history]
         return list(history)
-    
+
     def insert(self, text):
         """Insert text into the history of the line edit widget.
         """
-        if self.settings:
-            if not self.history:
-                self.history = [text]
-            else:
-                self.history.insert(0, text)
-                self.history = list(set(self.history)) # Remove duplicates.
+        if not self.history:
+            self.history = [text]
+        else:
+            self.history.insert(0, text)
+            self.history = uniq(self.history) # Remove duplicates.
         if len(self.history) > HistoryEventFilter.HISTORY:
             del self.history[HistoryEventFilter.HISTORY:]
         return
@@ -92,9 +93,9 @@ class HistoryEventFilter(Qt.QObject):
             return
         text = self.editor.text()
         if text in self.history:
-            index = self.history.index(text) - 1
+            index = (self.history.index(text) + 1) % len(self.history)
         else:
-            index = -1
+            index = 0
         self.editor.setText(self.history[index])
         return
 
@@ -106,8 +107,8 @@ class HistoryEventFilter(Qt.QObject):
             return
         text = self.editor.text()
         if text in self.history:
-            index = (self.history.index(text) + 1) % len(self.history)
+            index = self.history.index(text) - 1
         else:
-            index = 0
+            index = -1
         self.editor.setText(self.history[index])
         return
