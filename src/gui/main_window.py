@@ -11,6 +11,7 @@ Current features:
  * Increase / decrease font size.
  * Automatic annotations for lint reports.
  * Interactive Python interpreter.
+ * Settings saved between sessions.
 
 Copyright (C) Sarah Mount, 2011.
 
@@ -52,7 +53,6 @@ __date__ = 'April 2011'
 # TODO: Interactive Python debugger.
 # TODO: Interactive python-csp debugger.
 # FIXME: get_editor() sometimes returns wrong editor.
-# TODO: Keep a history in the console line edit widgets.
 
 class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     """Creates the Main Window of the application using the main 
