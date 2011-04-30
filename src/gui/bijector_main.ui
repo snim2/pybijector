@@ -1162,7 +1162,7 @@
    <sender>action_Clear_All_Breakpoints_Run</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>debug_remove_all_breakpoints()</slot>
+   <slot>remove_all_breakpoints()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -1667,7 +1667,7 @@
   <slot>run_debug_csp()</slot>
   <slot>run_debug_threads()</slot>
   <slot>clearFolds()</slot>
-  <slot>debug_remove_all_breakpoints()</slot>
+  <slot>remove_all_breakpoints()</slot>
   <slot>toggle_console()</slot>
   <slot>focus_csp()</slot>
   <slot>focus_threads()</slot>

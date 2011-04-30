@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui/bijector_main.ui'
 #
-# Created: Fri Apr 29 18:24:56 2011
+# Created: Fri Apr 29 18:30:45 2011
 #      by: PyQt4 UI code generator 4.8.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -364,7 +364,7 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.action_Debug_CSP_Code_Run, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.run_debug_csp)
         QtCore.QObject.connect(self.action_Debug_Threaded_Code_Run, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.run_debug_threads)
         QtCore.QObject.connect(self.action_Remove_All_Folds_Source, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.clearFolds)
-        QtCore.QObject.connect(self.action_Clear_All_Breakpoints_Run, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.debug_remove_all_breakpoints)
+        QtCore.QObject.connect(self.action_Clear_All_Breakpoints_Run, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.remove_all_breakpoints)
         QtCore.QObject.connect(self.action_Toggle_Console_Window, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.toggle_console)
         QtCore.QObject.connect(self.action_Threaded_Code_Editor, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.focus_threads)
         QtCore.QObject.connect(self.action_Python_CSP_Code_Editor, QtCore.SIGNAL(_fromUtf8("triggered()")), MainWindow.focus_csp)

@@ -31,8 +31,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from PyQt4 import Qt
 
 from bijector_main import Ui_MainWindow
-from lint import Lint, PyLintIterator, CSPLintIterator
+from debugger import PdbDebugger
+from history import HistoryEventFilter
 from interpreter import Interpreter
+from lint import Lint, PyLintIterator, CSPLintIterator
+from settings import SettingsManager
 from styling import StyleMixin
 
 import os
@@ -49,6 +52,7 @@ __date__ = 'April 2011'
 # TODO: Interactive Python debugger.
 # TODO: Interactive python-csp debugger.
 # FIXME: get_editor() sometimes returns wrong editor.
+# TODO: Keep a history in the console line edit widgets.
 
 class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     """Creates the Main Window of the application using the main 
@@ -74,6 +78,9 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         self.setup_styling()
         self.setup_icons()
         self.app_name = 'PyBijector'
+        # Manage settings.
+        self.settings = SettingsManager(__author__, self.app_name)
+        # Set up GUI.
         self.setWindowTitle(self.app_name)
         self.action_Close_File.setDisabled(True)
         # FIXME: Use Qt resources instead of static filenames.
@@ -109,17 +116,30 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         # Set up linting.
         self.csplint = Lint(MainWindow.CSPLINT, ['-p'], self.cspEdit,
                             CSPLintIterator, self.message)
-        self.pylint = Lint(MainWindow.PYLINT, ['-f', 'text', '-r', 'n'],
-                           self.threadEdit, PyLintIterator, self.message)
-        # Set up interpreters and debuggers.
-        self.csp_interp = Interpreter(MainWindow.PYTHON, self.cspConsole,
-                                      line_edit=self.cspLineEdit, prompt='> ')
-        self.thread_interp = Interpreter(MainWindow.PYTHON, self.threadConsole,
-                                         line_edit=self.threadLineEdit, prompt='> ')
+        self.pylint  = Lint(MainWindow.PYLINT, ['-f', 'text', '-r', 'n'],
+                            self.threadEdit, PyLintIterator, self.message)
+        # Set up interpreters and history managers for their input widgets.
+        self.history_python = HistoryEventFilter(self.pythonLineEdit, self.settings)
         self.python_console = Interpreter(MainWindow.PYTHON, self.pythonConsole,
-                                          line_edit=self.pythonLineEdit)
+                                          line_edit=self.pythonLineEdit,
+                                          settings=self.settings,
+                                          history=self.history_python)
         self.python_console.start_interactive(['-B', '-i', '-u', '-'])
-        self.pythonConsole.moveCursor(Qt.QTextCursor.End)
+        self.history_thread = HistoryEventFilter(self.threadLineEdit, self.settings)
+        self.thread_interp = Interpreter(MainWindow.PYTHON, self.threadConsole,
+                                         line_edit=self.threadLineEdit,
+                                         prompt='> ', settings=self.settings,
+                                         history=self.history_thread)
+        self.history_csp = HistoryEventFilter(self.cspLineEdit, self.settings)
+        self.csp_interp = Interpreter(MainWindow.PYTHON, self.cspConsole,
+                                      line_edit=self.cspLineEdit,
+                                      prompt='> ', settings=self.settings,
+                                      history=self.history_csp)
+        # Set up debuggers.
+        self.pdb_thread = PdbDebugger(MainWindow.PDB, self.threadConsole,
+                                      line_edit=self.threadLineEdit, prompt=None)
+        self.pdb_csp    = PdbDebugger(MainWindow.PDB, self.cspConsole,
+                                      line_edit=self.cspLineEdit, prompt=None)
         # Start with focus on the left hand pane.
         self.threadEdit.setFocus()
         return
@@ -143,6 +163,10 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
             return self.cspEdit
         else:
             return self.threadEdit
+
+    def get_active_debugger(self):
+        # WRITEME
+        return
     
     def message(self, msg):
         """Show a message on the status bar for two seconds.
@@ -158,8 +182,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
             self.filename = name
         self.setWindowTitle(name)
 
-        settings = Qt.QSettings(self.app_name, self.app_name)
-        files = settings.value('recentFileList')
+        files = self.settings.get_value('recentFileList')
         if files is None:
             files = [name]
         elif name:
@@ -167,7 +190,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
             files = list(set(files)) # Remove duplicates.
             del files[MainWindow.MAX_RECENT_FILES:]
 
-        settings.setValue('recentFileList', files)
+        self.settings.set_value('recentFileList', files)
         self.update_recent_file_actions()
         return
 
@@ -178,6 +201,8 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     def __getattr__(self, name):
         if name in MainWindow.EDITOR_SLOTS:
             return getattr(self.get_editor(), name)
+        elif name.startswith('debug_'):
+            return getattr(self.get_active_debugger(), name)
         else:
             return object.__getattribute__(self, name)
 
@@ -228,8 +253,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     def clear_recent_files(self):
         """Clear list of recent files.
         """
-        settings = Qt.QSettings(self.app_name, self.app_name)
-        settings.setValue('recentFileList', [])
+        self.settings.set_value('recentFileList', [])
         self.update_recent_file_actions()
         return
     
@@ -363,12 +387,12 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         """Goto a specific line in the current editor.
         """
         editor = self.get_editor()
-        line_number, ok = Qt.QInputDialog.getInt(self, self.app_name, 'Line number:',
-                                                 # value, min, max, step
-                                                 editor.getCursorPosition()[0]+1, 1, editor.lines(), 1)
+        lineno, ok = Qt.QInputDialog.getInt(self, self.app_name, 'Line number:',
+                                            # value, min, max, step
+                                            editor.getCursorPosition()[0]+1, 1, editor.lines(), 1)
         if ok: # Only act if the user pressed 'ok'.
-            editor.setCursorPosition(line_number - 1, 0)
-            self.message('At line %d.' % line_number)
+            editor.setCursorPosition(lineno - 1, 0)
+            self.message('At line %d.' % lineno)
         return
     
     #
@@ -451,19 +475,23 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     def abort_thread_console(self):
         """Terminate currently running interpreter or debugger for threaded code.
         """
-        WRITEME
+#        WRITEME
         return
 
     def abort_csp_console(self):
         """Terminate currently running interpreter or debugger for csp code.
         """
-        WRITEME
+#        WRITEME
         return
 
     #
     # Debug menu.
     #
-    
+
+    def remove_all_breakpoints(self):
+        self.get_editor().markerDeleteAll(MainWindow.BREAK_MARKER_NUM)
+        return
+
     def get_breakpoints(self, editor=None):
         if editor is None:
             editor = self.get_editor()
@@ -475,10 +503,6 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
             bp = temp
         return breakpoints
 
-    def debug_remove_all_breakpoints(self):
-        self.get_editor().markerDeleteAll(MainWindow.BREAK_MARKER_NUM)
-        return
-    
     def run_debug_csp(self):
         # WRITEME
         breakpoints = self.get_breakpoints(self.cspEdit)
@@ -566,24 +590,28 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     def focus_console(self):
         if not self.consoleTabs.isVisible():
             self.consoleTabs.show()
+        self.pythonLineEdit.setFocus()
         return
 
     def focus_interpreter(self):
         if not self.consoleTabs.isVisible():
             self.consoleTabs.show()
         self.consoleTabs.setCurrentIndex(0)
+        self.pythonLineEdit.setFocus()
         return
 
     def focus_thread_console(self):
         if not self.consoleTabs.isVisible():
             self.consoleTabs.show()
         self.consoleTabs.setCurrentIndex(1)
+        self.threadLineEdit.setFocus()
         return
 
     def focus_csp_console(self):
         if not self.consoleTabs.isVisible():
             self.consoleTabs.show()
         self.consoleTabs.setCurrentIndex(2)
+        self.cspLineEdit.setFocus()
         return
 
     #
@@ -616,12 +644,12 @@ http://code.google.com/p/python-csp/wiki/Tutorial
     # Slots without menu signals.
     #
 
-    def on_margin_clicked(self, nmargin, nline, modifiers):
+    def on_margin_clicked(self, margin, lineno, modifiers):
         # Toggle marker for the line the margin was clicked on
-        if self.get_editor().markersAtLine(nline) != 0:
-            self.get_editor().markerDelete(nline, MainWindow.BREAK_MARKER_NUM)
+        if self.get_editor().markersAtLine(lineno) != 0:
+            self.get_editor().markerDelete(lineno, MainWindow.BREAK_MARKER_NUM)
         else:
-            self.get_editor().markerAdd(nline, MainWindow.BREAK_MARKER_NUM)
+            self.get_editor().markerAdd(lineno, MainWindow.BREAK_MARKER_NUM)
 
     def get_current_selection(self, editor=None):
         if editor is None:
@@ -631,8 +659,7 @@ http://code.google.com/p/python-csp/wiki/Tutorial
 
 
     def update_recent_file_actions(self):
-        settings = Qt.QSettings(self.app_name, self.app_name)
-        files = settings.value('recentFileList')
+        files = self.settings.get_value('recentFileList')
         if files is None:
             return
         
@@ -664,6 +691,12 @@ http://code.google.com/p/python-csp/wiki/Tutorial
             self.pylint.start(self.filename)
         return
 
+    def save_settings(self):
+        self.python_console.save_history()
+        self.thread_interp.save_history()
+        self.csp_interp.save_history()
+        return
+    
     def closeEvent(self, event):
         if self.threadEdit.isModified() or self.cspEdit.isModified():
             quit_msg = 'Would you like to save your changes before leaving ' + self.app_name + '?'
@@ -673,13 +706,16 @@ http://code.google.com/p/python-csp/wiki/Tutorial
             if reply == Qt.QMessageBox.Save:
                 self.save_file()
                 self.python_console.terminate()
+                self.save_settings()
                 event.accept()
             elif reply == Qt.QMessageBox.Discard:
                 self.python_console.terminate()
+                self.save_settings()
                 event.accept()
             elif reply == Qt.QMessageBox.Cancel:
                 event.ignore()
         else:
             self.python_console.terminate()
+            self.save_settings()
             event.accept()
         return

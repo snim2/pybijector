@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Run an external interpreter, and parse its output.
+Run an external debugger, and parse its output.
 
 Copyright (C) Sarah Mount, 2011.
 
@@ -26,18 +26,15 @@ __credits__ = 'http://diotavelli.net/PyQtWiki/Capturing_Output_from_a_Process'
 __date__ = 'April 2011'
 
 # pylint: disable=W0511
-    
 
-class Interpreter(Qt.QWidget):
+class Debugger(Qt.QWidget):
 
-    def __init__(self, interpreter, console, line_edit=None, prompt=None, settings=None, history=None): 
+    def __init__(self, debugger, console, line_edit=None, prompt=None): 
         Qt.QWidget.__init__(self)
         self.process = Qt.QProcess()
-        self.interpreter = interpreter
+        self.debugger = debugger
         self.prompt = prompt
-        self.settings = settings
         # Input / output
-        self.history = history
         self.line_edit = line_edit
         self.console = console
         self.process.setReadChannel(Qt.QProcess.StandardOutput)
@@ -46,7 +43,7 @@ class Interpreter(Qt.QWidget):
         # Store text from STDOUT.
         self.output = None
         # Start cursor in right place. Important when the running
-        # process start with some output (e.g. interpreter REPLs).
+        # process start with some output (e.g. debugger REPLs).
         self.console.moveCursor(Qt.QTextCursor.End)
         # Signals and slots
         self.connect(self.process, Qt.SIGNAL("finished(int)"), self.finished)
@@ -55,23 +52,19 @@ class Interpreter(Qt.QWidget):
             self.connect(self.line_edit, Qt.SIGNAL('returnPressed()'), self.input)
         self.connect(self, Qt.SIGNAL('results()'), self.append)
         return
-
-    def save_history(self):
-        self.history.save_history()
-        return
         
     def start(self, filename, args):
         """Start the running process asynchronously.
         """
         interp_args = args + [filename]
-        self.process.start(self.interpreter, interp_args)
+        self.process.start(self.debugger, interp_args)
         return
 
     def start_interactive(self, args):
         """Start a long running interactive process which we expect to
         take input from the user.
         """
-        self.process.start(self.interpreter, args)
+        self.process.start(self.debugger, args)
         self.process.waitForStarted(-1)
         return
 
@@ -122,7 +115,58 @@ class Interpreter(Qt.QWidget):
         else:
             self.append(code + '\n')
         self.write(code)
-        self.history.insert(code)
-        self.line_edit.clear()                
+        self.line_edit.clear()
         return
 
+    def debug_remove_all_breakpoints(self):
+#        self.get_editor().markerDeleteAll(MainWindow.BREAK_MARKER_NUM)
+        return
+    
+    def debug_set_breakpoint(self):
+        # WRITEME
+        return
+
+    def debug_print_stacktrace(self):
+        # WRITEME
+        return
+
+    def debug_step(self):
+        # WRITEME
+        return
+    
+    def debug_next(self):
+        # WRITEME
+        return
+    
+    def debug_return(self):
+        # WRITEME
+        return
+    
+    def debug_continue(self):
+        # WRITEME
+        return
+    
+    def debug_jump(self):
+        # WRITEME
+        return
+    
+    def debug_args(self):
+        # WRITEME
+        return
+    
+    def debug_eval(self):
+        # WRITEME
+        return
+
+    def debug_until(self):
+        # WRITEME
+        return
+
+class PdbDebugger(Debugger):
+
+    def __init__(self, debugger, console, line_edit=None, prompt=None):
+        Debugger.__init__(self, debugger, console, line_edit=None, prompt=None)
+        return
+
+    def __str__(self):
+        return 'PDB interface'
