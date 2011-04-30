@@ -92,16 +92,18 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         self.setup_editor(self.threadEdit)
         self.setup_editor(self.cspEdit)
         # Set checkable actions.
-        self.action_Debugger_Toolbar_View.setChecked(False)
-        self.toggle_toolbar_view()
-        self.action_Toggle_Console_Window.setChecked(False)
-        self.consoleTabs.hide()
-        self.action_Folding_Mode_Source.setChecked(True)
-        self.toggle_folding_mode()
-        self.action_Whitespace_Visible_Source.setChecked(True)
-        self.toggle_whitespace_visible()
-        self.action_Word_Wrap_Source.setChecked(True)
-        self.toggle_word_wrap()
+        self.checkables = {
+            self.action_Debugger_Toolbar_View : self.toggle_toolbar_view,
+            self.action_Toggle_Console_Window : self.toggle_console,
+            self.action_Folding_Mode_Source : self.toggle_folding_mode,
+            self.action_Whitespace_Visible_Source : self.toggle_whitespace_visible,
+            self.action_Word_Wrap_Source : self.toggle_word_wrap
+            }
+        # Load settings and set checkables accordingly.
+        for checkable in self.checkables:
+            is_checked = self.settings.get_value(checkable.objectName())
+            checkable.setChecked(is_checked == 'True')
+            self.checkables[checkable]()
         # Apply basic syntax highlighting to consoles.
         self.highlight_python = syntax.PythonHighlighter(self.pythonConsole.document())
         self.highlight_thread = syntax.PythonHighlighter(self.threadConsole.document())
@@ -692,9 +694,15 @@ http://code.google.com/p/python-csp/wiki/Tutorial
         return
 
     def save_settings(self):
+        """
+        """
+        # Save history stored in line edit widgets.
         self.python_console.save_history()
         self.thread_interp.save_history()
         self.csp_interp.save_history()
+        # Save checkables.
+        for check in self.checkables:
+            self.settings.set_value(check.objectName(),str(check.isChecked()))
         return
     
     def closeEvent(self, event):
