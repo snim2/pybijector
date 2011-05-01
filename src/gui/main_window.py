@@ -115,8 +115,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         self.update_recent_file_actions()
         # Shortcuts without menu items
         self.connect(Qt.QShortcut(Qt.QKeySequence("Ctrl+Space"), self), 
-                     Qt.SIGNAL('activated()'),
-                     self.autoCompleteFromAll)
+                     Qt.SIGNAL('activated()'), self.autoCompleteFromAll)
         # Set up linting.
         self.csplint = Lint(self.csplint_exec, [], self.cspEdit,
                             CSPLintIterator, self.message)
@@ -320,36 +319,31 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         return
 
     def print_file(self):
+        # Based on an example from the PyQt4 wiki.
         Margin = 10
         pageNo = 1
-
         print_dialog = Qt.QPrintDialog(self.printer, self)
         if (print_dialog.exec_() != Qt.QDialog.Accepted):
             self.message('Printing aborted.')
             return
         self.message('Printing %s' % self.filename)
-
         p = Qt.QPainter()
         p.begin(self.printer)
         p.setFont(self.get_editor().font())
         yPos = 0
         fm = p.fontMetrics()
-
         width = self.printer.metric(Qt.QPaintDevice.PdmWidth)
         height = self.printer.metric(Qt.QPaintDevice.PdmHeight)
-
         for i in xrange(self.get_editor().lines()):
             if Margin + yPos > height - Margin:
                 pageNo = pageNo + 1
                 self.message('Printing (page %d)...' % (pageNo))
                 self.printer.newPage()
                 yPos = 0
-
             p.drawText(Margin, Margin + yPos, width, fm.lineSpacing(),
                        QtCore.Qt.TextExpandTabs | QtCore.Qt.TextWordWrap,
                        self.get_editor().text(i))
             yPos = yPos + fm.lineSpacing()
-
         p.end()
         self.message('Printing completed')
         return
@@ -377,6 +371,9 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     #
 
     def settings_dialog(self):
+        """Open the settings dialog and save settings.
+        These are all currently file paths for external programs.
+        """
         settings_dialog = SettingsDialog(self, self.settings)
         settings_dialog.exec_()
         self.load_settings()
@@ -399,6 +396,8 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     #
 
     def find(self):
+        """Simple dialog for finding text.
+        """
         editor = self.get_editor()
         self.searchString, ok = Qt.QInputDialog.getText(self, self.app_name, 'Find:',
                                            Qt.QLineEdit.Normal, '')
@@ -462,26 +461,24 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     def indent_selection(self):
         editor = self.get_editor()
         if editor.hasSelectedText():
-            lineFrom, indexFrom, lineTo, indexTo = self.get_current_selection(editor)
+            lineFrom, _, lineTo, _ = self.get_current_selection(editor)
             for line in xrange(lineFrom, lineTo + 1):
                 editor.indent(line)
             self.message('Selected text indented.')
         else:
-            line, index = editor.getCursorPosition()
-            editor.indent(line)
+            editor.indent(editor.getCursorPosition()[0])
             self.message('Line %d indented.' % line)
         return
 
     def unindent_selection(self):
         editor = self.get_editor()
         if editor.hasSelectedText():
-            lineFrom, indexFrom, lineTo, indexTo = self.get_current_selection(editor)
+            lineFrom, _, lineTo, _ = self.get_current_selection(editor)
             for line in xrange(lineFrom, lineTo + 1):
                 editor.unindent(line)
             self.message('Selected text unindented.')
         else:
-            line, index = editor.getCursorPosition()
-            editor.unindent(line)
+            editor.unindent(editor.getCursorPosition()[0])
             self.message('Line %d unindented.' % line)
         return
 
@@ -511,10 +508,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         """Run code in the CSP editor pane and display output in a console.
         """
         self.cspConsole.clear()
-        if not self.action_Toggle_Console_Window.isChecked():
-            self.action_Toggle_Console_Window.setChecked(True)
-            self.toggle_console()
-        self.consoleTabs.setCurrentIndex(2)
+        self.focus_csp_console()
         self.csp_interp.start([self.filename])
         self.message('Running %s.' % self.filename)
         return
@@ -523,10 +517,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         """Run code in the thread editor pane and display output in a console.
         """
         self.threadConsole.clear()
-        if not self.action_Toggle_Console_Window.isChecked():
-            self.action_Toggle_Console_Window.setChecked(True)
-            self.toggle_console()
-        self.consoleTabs.setCurrentIndex(1)
+        self.focus_thread_console()
         self.thread_interp.start([self.filename])
         self.message('Running %s.' % self.filename)
         return
@@ -534,13 +525,17 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     def abort_thread_console(self):
         """Terminate currently running interpreter or debugger for threaded code.
         """
-#        WRITEME
+        self.thread_interp.terminate()
+        self.pdb_thread.terminate()
+        self.message('Any running programs aborted.')
         return
 
     def abort_csp_console(self):
         """Terminate currently running interpreter or debugger for csp code.
         """
-#        WRITEME
+        self.csp_interp.terminate()
+        self.pdb_csp.terminate()
+        self.message('Any running programs aborted.')
         return
 
     #
@@ -566,14 +561,18 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     def run_debug_csp(self):
         # WRITEME
         breakpoints = self.get_breakpoints(self.cspEdit)
-        print breakpoints
+        self.cspConsole.clear()
+        self.focus_csp_console()
+        self.pdb_csp.start_interactive(args=[self.filename])
         self.message('Debugging %s.' % self.filename)
         return
 
     def run_debug_threads(self):
         # WRITEME
         breakpoints = self.get_breakpoints(self.threadEdit)
-        print breakpoints
+        self.threadConsole.clear()
+        self.focus_thread_console()
+        self.pdb_thread.start_interactive(args=[self.filename])
         self.message('Debugging %s.' % self.filename)
         return
 
@@ -622,6 +621,8 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     #
 
     def toggle_toolbar_view(self):
+        """Show or hide the debugger toolbar.
+        """
         if self.action_Debugger_Toolbar_View.isChecked():
             self.debugToolBar.show()
         else:
@@ -634,46 +635,44 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         else:
             self.consoleTabs.hide()
         return
+
+    def change_focus(self, widget, isConsole, index):
+        """Change the current focus to one of the text entry widgets.
+        """
+        if not isConsole:
+            if not widget.isVisible():
+                widget.show()
+            widget.setFocus()
+            return
+        if not self.action_Toggle_Console_Window.isChecked():
+            self.action_Toggle_Console_Window.setChecked(True)
+            self.toggle_console()
+        self.consoleTabs.setCurrentIndex(index)
+        widget.setFocus()
+        return    
     
     def focus_threads(self):
-        if not self.threadEdit.isVisible():
-            self.threadEdit.show()
-        self.cspEdit.clearFocus()
-        self.threadEdit.setFocus()
+        self.change_focus(self.threadEdit, False, None)
         return
 
     def focus_csp(self):
-        if not self.cspEdit.isVisible():
-            self.cspEdit.show()
-        self.threadEdit.clearFocus()
-        self.cspEdit.setFocus()
+        self.change_focus(self.cspEdit, False, None)
         return
-
+    
     def focus_console(self):
-        if not self.consoleTabs.isVisible():
-            self.consoleTabs.show()
-        self.pythonLineEdit.setFocus()
+        self.change_focus(self.pythonLineEdit, True, 0)
         return
 
     def focus_interpreter(self):
-        if not self.consoleTabs.isVisible():
-            self.consoleTabs.show()
-        self.consoleTabs.setCurrentIndex(0)
-        self.pythonLineEdit.setFocus()
+        self.change_focus(self.pythonLineEdit, True, 0)
         return
 
     def focus_thread_console(self):
-        if not self.consoleTabs.isVisible():
-            self.consoleTabs.show()
-        self.consoleTabs.setCurrentIndex(1)
-        self.threadLineEdit.setFocus()
+        self.change_focus(self.threadLineEdit, True, 1)
         return
 
     def focus_csp_console(self):
-        if not self.consoleTabs.isVisible():
-            self.consoleTabs.show()
-        self.consoleTabs.setCurrentIndex(2)
-        self.cspLineEdit.setFocus()
+        self.change_focus(self.cspLineEdit, True, 2)
         return
 
     #
@@ -709,20 +708,25 @@ http://code.google.com/p/python-csp/wiki/Tutorial
     #
 
     def on_margin_clicked(self, margin, lineno, modifiers):
-        # Toggle marker for the line the margin was clicked on
+        """Toggle marker for the line the margin was clicked on.
+        Used as a placeholder for a breakpoint.
+        """
         if self.get_editor().markersAtLine(lineno) != 0:
             self.get_editor().markerDelete(lineno, MainWindow.BREAK_MARKER_NUM)
         else:
             self.get_editor().markerAdd(lineno, MainWindow.BREAK_MARKER_NUM)
 
     def get_current_selection(self, editor=None):
+        """Rerurns currently selected text in currently active editor.
+        """
         if editor is None:
             editor = self.get_editor()
         lineFrom, indexFrom, lineTo, indexTo = editor.getSelection()
         return lineFrom, indexFrom, lineTo, indexTo
 
-
     def update_recent_file_actions(self):
+        """Update actions related to recent file list.
+        """
         files = self.settings.get_value('recentFileList')
         if files is None:
             return
@@ -749,10 +753,12 @@ http://code.google.com/p/python-csp/wiki/Tutorial
         return Qt.QFileInfo(fullFileName).fileName()
 
     def run_lint(self, editor):
+        """Run an external static checker and display results as annotations.
+        """
         if editor == self.cspEdit:
             self.csplint.start(['-p', self.filename])
         else:
-            self.pylint.start(['-f', 'text', '-r', 'n',self.filename])
+            self.pylint.start(['-f', 'text', '-r', 'n', self.filename])
         return
 
     def clean_up(self):
@@ -760,32 +766,25 @@ http://code.google.com/p/python-csp/wiki/Tutorial
         Save settings, terminate all running processes.
         """
         # Save history stored in line edit widgets.
-        self.python_console.save_history()
-        self.thread_interp.save_history()
-        self.csp_interp.save_history()
+        for console in [self.python_console, self.thread_interp, self.csp_interp]:
+            console.save_history()
         # Save checkables.
         for check in self.checkables:
             self.settings.set_value(check.objectName(), str(check.isChecked()))
-        # Close Python console.
-        self.python_console.terminate()
-        # Close running user programs.
-        self.thread_interp.terminate()
-        self.thread_interp.terminate()        
-        # Close debuggers.
-        self.pdb_thread.terminate()
-        self.pdb_csp.terminate()
-        # Close lints.
-        self.pylint.terminate()
-        self.csplint.terminate()        
+        # Close running processes.
+        for proc in [self.python_console, self.thread_interp, self.csp_interp,
+                     self.pdb_thread, self.pdb_csp, self.pylint, self.csplint]:
+            proc.terminate()
         return
 
-
     def closeEvent(self, event):
+        """SLOT called on closing the application.
+        Saves any settings, closes all resources before exit.
+        """
         if self.threadEdit.isModified() or self.cspEdit.isModified():
-            quit_msg = 'Would you like to save your changes before leaving ' + self.app_name + '?'
-            reply = Qt.QMessageBox.question(self, self.app_name, quit_msg,
+            msg = 'Would you like to save your changes before leaving %s? ' % self.app_name
+            reply = Qt.QMessageBox.question(self, self.app_name, msg,
                                             Qt.QMessageBox.Save, Qt.QMessageBox.Discard, Qt.QMessageBox.Cancel)
-
             if reply == Qt.QMessageBox.Save:
                 self.save_file()
                 self.clean_up()
