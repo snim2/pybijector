@@ -72,7 +72,7 @@ class HistoryEventFilter(Qt.QObject):
     def insert(self, text):
         """Insert text into the history of the line edit widget.
         """
-        if not self.history:
+        if self.history is None or self.history == []:
             self.history = [text]
         else:
             self.history.insert(0, text)

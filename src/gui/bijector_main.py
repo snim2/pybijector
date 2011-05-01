@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui/bijector_main.ui'
 #
-# Created: Sat Apr 30 21:38:29 2011
+# Created: Sun May  1 00:22:22 2011
 #      by: PyQt4 UI code generator 4.8.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -328,6 +328,9 @@ class Ui_MainWindow(object):
         self.toolBar.addSeparator()
         self.toolBar.addAction(self.action_Find_Search)
         self.toolBar.addAction(self.action_Replace_Search)
+        self.toolBar.addSeparator()
+        self.toolBar.addAction(self.action_Zoom_In_View)
+        self.toolBar.addAction(self.action_Zoom_Out_View)
         self.toolBar.addSeparator()
         self.toolBar.addAction(self.action_Run_Threaded_Code_Run)
         self.toolBar.addAction(self.action_Run_CSP_Code_Run)

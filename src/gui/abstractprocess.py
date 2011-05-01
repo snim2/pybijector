@@ -46,7 +46,7 @@ class AbstractProcess(Qt.QWidget):
         self.process.setProcessChannelMode(Qt.QProcess.MergedChannels)
         # Signals / slots.
         self.connect(self.process, Qt.SIGNAL("finished(int)"), self.finished)
-        self.connect(self.process, Qt.SIGNAL("readyReadStderr()"), self.readErrors)
+#        self.connect(self.process, Qt.SIGNAL("readyReadStderr()"), self.readErrors)
         if self.line_edit is not None:
             self.connect(self.line_edit, Qt.SIGNAL('returnPressed()'), self.input)
         return
@@ -64,18 +64,9 @@ class AbstractProcess(Qt.QWidget):
         if args is None:
             args = self.args
         self.process.start(self.program, args)
-        return
-
-    def start_interactive(self, args=None):
-        """Start a long running interactive process which we expect to
-        take input from the user.
-        """
-        if args is None:
-            args = self.args
-        self.process.start(self.program, args)
         self.process.waitForStarted(-1)
         return
-    
+
     def is_running(self):
         """Return True if the current process is running and False otherwise.
         """
@@ -112,6 +103,8 @@ class AbstractProcess(Qt.QWidget):
     def write(self, data):
         """Write data to the STDIN of a running process.
         """
+        if not self.is_running():
+            return
         self.process.write(str(data) + '\n')
         self.process.waitForBytesWritten(-1)
         return
@@ -131,7 +124,7 @@ class AbstractProcess(Qt.QWidget):
         """Take input form the line editor and send it to the running process.
         Ensure it is displayed on the visible console.
         """
-        if self.line_edit is None:
+        if self.line_edit is None or not self.is_running():
             return
         code = self.line_edit.text()
         if self.prompt:
@@ -139,7 +132,8 @@ class AbstractProcess(Qt.QWidget):
         else:
             self.append(code + '\n')
         self.write(code)
-        self.history.insert(code)
+        if self.history:
+            self.history.insert(code)
         self.line_edit.clear()
         return
 

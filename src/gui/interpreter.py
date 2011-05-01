@@ -39,61 +39,62 @@ class Interpreter(AbstractProcess):
         return
 
 
-class Debugger(AbstractProcess):
-
-    def __init__(self, debugger, args, console=None, line_edit=None, prompt=None): 
-        AbstractProcess.__init__(self, debugger, args, console=console, line_edit=line_edit, prompt=prompt)
+class PdbDebugger(AbstractProcess):
+    """Interface to the Python debugger, PDB.
+    """
+    
+    def __init__(self, interpreter, args, console, line_edit=None, prompt=None, settings=None, history=None): 
+        AbstractProcess.__init__(self, interpreter, args, console, line_edit=line_edit, prompt=prompt, settings=settings, history=history)
+        self.process.setProcessChannelMode(Qt.QProcess.MergedChannels)
+        self.connect(self.process, Qt.SIGNAL("readyReadStandardOutput()"), self.readOutput)
         self.connect(self, Qt.SIGNAL('results()'), self.append)
-        return        
-
-    def debug_remove_all_breakpoints(self):
-        return
-    
-    def debug_set_breakpoint(self):
-        # WRITEME
         return
 
-    def debug_print_stacktrace(self):
-        # WRITEME
+    def remove_breakpoint(self, lineno):
+        self.write('clear %d' % lineno)
         return
 
-    def debug_step(self):
-        # WRITEME
+    def remove_all_breakpoints(self):
+        self.write('clear')
+        self.write('yes')
         return
     
-    def debug_next(self):
-        # WRITEME
-        return
-    
-    def debug_return(self):
-        # WRITEME
-        return
-    
-    def debug_continue(self):
-        # WRITEME
-        return
-    
-    def debug_jump(self):
-        # WRITEME
-        return
-    
-    def debug_args(self):
-        # WRITEME
-        return
-    
-    def debug_eval(self):
-        # WRITEME
+    def set_breakpoint(self, lineno):
+        self.write('break %d' % lineno)
         return
 
-    def debug_until(self):
-        # WRITEME
+    def print_stacktrace(self):
+        self.write('where')
         return
 
-class PdbDebugger(Debugger):
-
-    def __init__(self, debugger, args, console=None, line_edit=None, prompt=None):
-        Debugger.__init__(self, debugger, args, console=console, line_edit=None, prompt=None)
+    def step(self):
+        self.write('step')
+        return
+    
+    def next(self):
+        self.write('next')
+        return
+    
+    def return_(self):
+        self.write('return')
+        return
+    
+    def continue_(self):
+        self.write('continue')
+        return
+    
+    def jump(self, lineno):
+        self.write('jump %d' % lineno)
+        return
+    
+    def args_(self):
+        self.write('args')
+        return
+    
+    def eval(self, expr):
+        self.write('p %s' % expr)
         return
 
-    def __str__(self):
-        return 'PDB interface'
+    def until(self):
+        self.write('until')
+        return

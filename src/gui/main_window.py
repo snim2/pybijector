@@ -52,9 +52,9 @@ __date__ = 'April 2011'
 # pylint: disable=W0613
 # pylint: disable=W0511
 
-# TODO: Interactive Python debugger.
-# TODO: Interactive python-csp debugger.
+# TODO: Make use of cspdb.
 # FIXME: get_editor() sometimes returns wrong editor.
+# TODO: Add arguments to all settings in the settings dialog.
 
 
 class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
@@ -140,7 +140,7 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
                                           line_edit=self.cspLineEdit,
                                           prompt='> ', settings=self.settings,
                                           history=self.history_csp)
-        self.python_console.start_interactive()
+        self.python_console.start()
         # Set up debuggers.
         self.pdb_thread = PdbDebugger(self.pdb_exec, [],
                                       console=self.threadConsole,
@@ -194,7 +194,6 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         else:
             self.filename = name
         self.setWindowTitle(name)
-
         files = self.settings.get_value('recentFileList')
         if files is None:
             files = [name]
@@ -202,7 +201,6 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
             files.insert(0, name)
             files = uniq(files) # Remove duplicates.
             del files[MainWindow.MAX_RECENT_FILES:]
-
         self.settings.set_value('recentFileList', files)
         self.update_recent_file_actions()
         return
@@ -276,10 +274,8 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         if self.filename.isEmpty():
             self.save_as_file()
             return
-
         if editor is None:
             editor = self.get_editor()
-
         try:
             f = open(str(self.filename),'w+')
             f.write(str(editor.text()))
@@ -287,17 +283,14 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         except Exception, e:
             self.message('Could not write to %s' % self.filename)
             return
-
         editor.setModified(False)
         self.message('File %s saved' % self.filename)
         self.action_Close_File.setDisabled(False)
-
         # Auto-convert between concurrency models.
         if editor is self.threadEdit:
             self.to_csp()
         else:
             self.to_threads()
-
         # Run appropriate lint.
         self.run_lint(editor)
         return
@@ -373,10 +366,13 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
     def settings_dialog(self):
         """Open the settings dialog and save settings.
         These are all currently file paths for external programs.
+        
         """
         settings_dialog = SettingsDialog(self, self.settings)
         settings_dialog.exec_()
         self.load_settings()
+        if settings_dialog.result() == Qt.QDialog.Rejected:
+            return
         msg = 'Please restart %s for your changes to take effect.' % self.app_name
         self.message('Settings saved.')
         Qt.QMessageBox.information(self, self.app_name, msg)
@@ -466,7 +462,8 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
                 editor.indent(line)
             self.message('Selected text indented.')
         else:
-            editor.indent(editor.getCursorPosition()[0])
+            line = editor.getCursorPosition()[0]
+            editor.indent(line)
             self.message('Line %d indented.' % line)
         return
 
@@ -478,7 +475,8 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
                 editor.unindent(line)
             self.message('Selected text unindented.')
         else:
-            editor.unindent(editor.getCursorPosition()[0])
+            line = editor.getCursorPosition()[0]
+            editor.unindent(line)
             self.message('Line %d unindented.' % line)
         return
 
@@ -544,10 +542,15 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
 
     def remove_all_breakpoints(self):
         self.get_editor().markerDeleteAll(MainWindow.BREAK_MARKER_NUM)
+        debug = self.get_active_debugger()
+        if debug:
+            debug.remove_all_breakpoints()        
         self.message('Breakpoints removed.')
         return
 
     def get_breakpoints(self, editor=None):
+        """Return a list of locations of breakpoint markers.
+        """
         if editor is None:
             editor = self.get_editor()
         breakpoints = []
@@ -559,61 +562,118 @@ class MainWindow(Qt.QMainWindow, Ui_MainWindow, StyleMixin):
         return breakpoints
 
     def run_debug_csp(self):
-        # WRITEME
         breakpoints = self.get_breakpoints(self.cspEdit)
         self.cspConsole.clear()
         self.focus_csp_console()
-        self.pdb_csp.start_interactive(args=[self.filename])
+        self.pdb_csp.start(['-B', '-i', '-u', '-m', 'pdb', str(self.filename)])
+        for breakpoint in breakpoints:
+            self.debug_set_breakpoint(breakpoint)
         self.message('Debugging %s.' % self.filename)
         return
 
     def run_debug_threads(self):
-        # WRITEME
         breakpoints = self.get_breakpoints(self.threadEdit)
         self.threadConsole.clear()
         self.focus_thread_console()
-        self.pdb_thread.start_interactive(args=[self.filename])
+        self.pdb_thread.start(['-B', '-i', '-u', '-m', 'pdb', str(self.filename)])
+        for breakpoint in breakpoints:
+            self.debug_set_breakpoint(breakpoint)        
         self.message('Debugging %s.' % self.filename)
         return
 
-    def debug_set_breakpoint(self):
-        # WRITEME
+    def debug_set_breakpoint(self, lineno=None):
+        debug = self.get_active_debugger()
+        if debug is None:
+            return
+        if lineno is None:
+            editor = self.get_editor()
+            lineno, ok = Qt.QInputDialog.getInt(self, self.app_name, 'Line number:',
+                                                # value, min, max, step
+                                                editor.getCursorPosition()[0]+1, 1, editor.lines(), 1)
+            if ok:
+                debug.set_breakpoint(lineno)
+        else:
+            debug.set_breakpoint(lineno)
         return
 
+    def debug_remove_breakpoint(self, lineno=None):
+        debug = self.get_active_debugger()
+        if debug is None:
+            return
+        if lineno is None:
+            editor = self.get_editor()
+            lineno, ok = Qt.QInputDialog.getInt(self, self.app_name,
+                                                'Set breakpoint at line number:',
+                                                # value, min, max, step
+                                                editor.getCursorPosition()[0]+1, 1, editor.lines(), 1)
+            if ok:
+                debug.remove_breakpoint(lineno)
+        else:
+            debug.remove_breakpoint(lineno)
+        return
+    
     def debug_print_stacktrace(self):
-        # WRITEME
+        debug = self.get_active_debugger()
+        if debug:
+            debug.print_stacktrace()
         return
 
     def debug_step(self):
-        # WRITEME
+        debug = self.get_active_debugger()
+        if debug:
+            debug.step()
         return
     
     def debug_next(self):
-        # WRITEME
+        debug = self.get_active_debugger()
+        if debug:
+            debug.next()
         return
     
     def debug_return(self):
-        # WRITEME
+        debug = self.get_active_debugger()
+        if debug:
+            debug.return_()
         return
     
     def debug_continue(self):
-        # WRITEME
+        debug = self.get_active_debugger()
+        if debug:
+            debug.continue_()
         return
     
     def debug_jump(self):
-        # WRITEME
+        debug = self.get_active_debugger()
+        if debug is None:
+            return
+        editor = self.get_editor()
+        lineno, ok = Qt.QInputDialog.getInt(self, self.app_name, 'Jump to line number:',
+                                            editor.getCursorPosition()[0]+1, 1, editor.lines(), 1)
+        if ok:
+            debug.jump(lineno)
         return
     
     def debug_args(self):
-        # WRITEME
+        debug = self.get_active_debugger()
+        if debug:
+            debug.args_()
         return
     
     def debug_eval(self):
-        # WRITEME
+        debug = self.get_active_debugger()
+        if debug is None:
+            return
+        expr, ok = Qt.QInputDialog.getText(self, self.app_name,
+                                           'Expression to evaluate:',
+                                           Qt.QLineEdit.Normal)
+        if ok and not expr.isEmpty():
+            debug.eval(str(expr))
         return
 
     def debug_until(self):
-        # WRITEME
+        debug = self.get_active_debugger()
+        if debug:
+            debug.until()
         return
     
     #
@@ -713,8 +773,11 @@ http://code.google.com/p/python-csp/wiki/Tutorial
         """
         if self.get_editor().markersAtLine(lineno) != 0:
             self.get_editor().markerDelete(lineno, MainWindow.BREAK_MARKER_NUM)
+            self.debug_remove_breakpoint(lineno)
         else:
             self.get_editor().markerAdd(lineno, MainWindow.BREAK_MARKER_NUM)
+            self.debug_set_breakpoint(lineno)
+        return
 
     def get_current_selection(self, editor=None):
         """Rerurns currently selected text in currently active editor.

@@ -288,6 +288,9 @@
    <addaction name="action_Find_Search"/>
    <addaction name="action_Replace_Search"/>
    <addaction name="separator"/>
+   <addaction name="action_Zoom_In_View"/>
+   <addaction name="action_Zoom_Out_View"/>
+   <addaction name="separator"/>
    <addaction name="action_Run_Threaded_Code_Run"/>
    <addaction name="action_Run_CSP_Code_Run"/>
   </widget>
