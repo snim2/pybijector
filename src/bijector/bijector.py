@@ -29,8 +29,13 @@ from gui.main_window import MainWindow
 __author__ = 'Sarah Mount <s.mount@wlv.ac.uk>'
 __date__ = 'April 2011'
 
-if __name__ == '__main__':
+
+def main():
     app = QtGui.QApplication(sys.argv)
     window = MainWindow()
     window.showMaximized()
     sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    main()
