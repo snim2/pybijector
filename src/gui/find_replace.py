@@ -20,15 +20,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from PyQt4 import Qt
+from PyQt4 import uic
 
-from find_dialog import Ui_Dialog
+Ui_Dialog, base_class = uic.loadUiType('find_dialog.ui')
 
 __author__ = 'Sarah Mount <s.mount@wlv.ac.uk>'
 __credits__ = 'http://diotavelli.net/PyQtWiki/Capturing_Output_from_a_Process'
 __date__ = 'April 2011'
 
 # pylint: disable=W0231
-
 
 class FindReplaceDialog(Qt.QDialog, Ui_Dialog):
 

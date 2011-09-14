@@ -21,8 +21,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 from PyQt4 import Qt
+from PyQt4 import uic
 
-from settings_dialog import Ui_SettingsDialog
+Ui_SettingsDialog, base_class = uic.loadUiType('settings_dialog.ui')
 
 __author__ = 'Sarah Mount <s.mount@wlv.ac.uk>'
 __date__ = 'April 2011'

@@ -30,9 +30,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from PyQt4 import Qt, QtCore
+from PyQt4 import uic
 
-from basics import uniq
-from bijector_main import Ui_MainWindow
+Ui_MainWindow, base_class = uic.loadUiType('bijector_main.ui')
+
+from basics import uniq 
 from find_replace import FindReplaceDialog
 from history import HistoryEventFilter
 from interpreter import Interpreter, PdbDebugger
